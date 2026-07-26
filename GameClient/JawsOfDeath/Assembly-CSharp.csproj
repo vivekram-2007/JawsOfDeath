@@ -49,6 +49,12 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\ZombieHealth.cs" />
+    <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\CameraController.cs" />
+    <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationController.cs" />
+    <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationItemData.cs" />
+    <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\UIElementController.cs" />
+    <Compile Include="Assets\scripts\PlayerShooting.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\MouseLook.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\Turn_Move.cs" />
