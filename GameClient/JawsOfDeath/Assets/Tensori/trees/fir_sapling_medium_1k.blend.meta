@@ -3,7 +3,22 @@ guid: 96e4bb99f42b593459ce169d63957081
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fir_sapling_medium_branches
+    second: {fileID: 2100000, guid: 5115724d93f4b5e40abe4dda2ae51b1b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fir_sapling_medium_branches_dead
+    second: {fileID: 2100000, guid: 8f639434af04d5d40ac95e17dd673299, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fir_sapling_medium_twigs
+    second: {fileID: 2100000, guid: 98880f357d03fed4ba9c8530377130fa, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
