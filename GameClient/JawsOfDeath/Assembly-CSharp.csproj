@@ -50,18 +50,44 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\scripts\ZombieHealth.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_CameraCopyFrom.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\CameraController.cs" />
+    <Compile Include="Assets\Starfield Skybox\Demo\Script\LookCamera.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationController.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScaleDropdownUI.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationItemData.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTexture.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\UIElementController.cs" />
+    <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\FullscreenCustomLightingFeature.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureSetAsGlobalTexture.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_AnimateMaterialUV.cs" />
     <Compile Include="Assets\scripts\PlayerShooting.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\MouseLook.cs" />
+    <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\CustomRenderTextureUpdater.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_FPSDisplay.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureReceiveToRendererMaterial.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScale.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_CameraController.cs" />
+    <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\VolumetricFogController.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureSendToMaterial.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_Rotator.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetFPSOnStart.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LightColourMesh.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\Turn_Move.cs" />
+    <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_RenderScaleSliderUI.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Functions.hlsl" />
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Fresnel.hlsl" />
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Rotation.hlsl" />
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hash.hlsl" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\Triplanar.shader" />
+    <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\README.txt" />
+    <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Shaders\Volumetric Fog.hlsl" />
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hex.hlsl" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\ArmatureShader.shader" />
+    <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Blocks.hlsl" />
     <None Include="Assets\Barking_Dog\3D Free Modular Kit\Readme_Please.txt" />
   </ItemGroup>
   <ItemGroup>
