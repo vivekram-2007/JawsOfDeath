@@ -1,22 +1,19 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 public class ZombieHealth : MonoBehaviour
 {
-    public float maxHealth = 50f;
-    private float currentHealth;
+    public int maxHealth = 50;
+    private int currentHealth;
 
     void Start()
     {
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(int amount)
     {
         currentHealth -= amount;
-        Debug.Log(gameObject.name + " took damage. Health: " + currentHealth);
-
-        if (currentHealth <= 0f)
+        if (currentHealth <= 0)
         {
             Die();
         }
@@ -24,7 +21,6 @@ public class ZombieHealth : MonoBehaviour
 
     void Die()
     {
-        Debug.Log(gameObject.name + " died!");
         Destroy(gameObject);
     }
 }
