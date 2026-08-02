@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.381132, g: 0.34445706, b: 0.34445706, a: 0.9137255}
   m_FogMode: 3
-  m_FogDensity: 0
+  m_FogDensity: 0.025
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 363264237667080991, guid: 6a57508ea9f1a2e4ba69675cdd7361e3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 363264237667080991, guid: 6a57508ea9f1a2e4ba69675cdd7361e3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5256,6 +5256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieAI
   chaseRange: 15
+  appearRange: 10
 --- !u!195 &468040231
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5275,7 +5276,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0
+  m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!1 &477165837
@@ -5416,6 +5417,7 @@ GameObject:
   - component: {fileID: 497755403}
   - component: {fileID: 497755402}
   - component: {fileID: 497755401}
+  - component: {fileID: 497755404}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -5498,6 +5500,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &497755404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497755400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: 753580273d4b9df4db9b17e3f0248a01, type: 2}
+  m_BuildHeightMesh: 0
 --- !u!1 &530790167
 GameObject:
   m_ObjectHideFlags: 0
@@ -5915,11 +5949,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1487728598053555420, guid: 3c82496091b83e446a2c2ee05491aee1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 37.57809
+      value: 48.345882
       objectReference: {fileID: 0}
     - target: {fileID: 1487728598053555420, guid: 3c82496091b83e446a2c2ee05491aee1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.9848919
+      value: -1.7600226
       objectReference: {fileID: 0}
     - target: {fileID: 1487728598053555420, guid: 3c82496091b83e446a2c2ee05491aee1, type: 3}
       propertyPath: m_LocalPosition.z
