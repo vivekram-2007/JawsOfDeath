@@ -60,6 +60,7 @@
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\UIElementController.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\FullscreenCustomLightingFeature.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureSetAsGlobalTexture.cs" />
+    <Compile Include="Assets\scripts\ZombieAI.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_AnimateMaterialUV.cs" />
     <Compile Include="Assets\scripts\PlayerShooting.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\MouseLook.cs" />
