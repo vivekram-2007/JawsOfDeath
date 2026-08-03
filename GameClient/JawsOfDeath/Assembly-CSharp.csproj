@@ -52,7 +52,6 @@
     <Compile Include="Assets\scripts\ZombieHealth.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_CameraCopyFrom.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\CameraController.cs" />
-    <Compile Include="Assets\Starfield Skybox\Demo\Script\LookCamera.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationController.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScaleDropdownUI.cs" />
     <Compile Include="Assets\Tensori\SkinlessZombie\Demo Scripts\AnimationItemData.cs" />
