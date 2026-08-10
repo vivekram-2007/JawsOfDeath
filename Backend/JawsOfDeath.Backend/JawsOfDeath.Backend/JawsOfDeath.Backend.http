@@ -1,0 +1,6 @@
+@JawsOfDeath.Backend_HostAddress = http://localhost:5153
+
+GET {{JawsOfDeath.Backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
