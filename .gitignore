@@ -7,3 +7,5 @@ GameClient/JawsOfDeath/.vs/
 Backend/bin/
 Backend/obj/
 Backend/.vs/
+Backend/**/bin/
+Backend/**/obj/
