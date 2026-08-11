@@ -6,6 +6,6 @@ GameClient/JawsOfDeath/UserSettings/
 GameClient/JawsOfDeath/.vs/
 Backend/**/bin/
 Backend/**/obj/
-Backend/.vs/
+Backend/**/.vs/
 Backend/**/*.db
 bfg.jar
