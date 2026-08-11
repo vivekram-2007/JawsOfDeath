@@ -4,6 +4,8 @@ GameClient/JawsOfDeath/obj/
 GameClient/JawsOfDeath/Logs/
 GameClient/JawsOfDeath/UserSettings/
 GameClient/JawsOfDeath/.vs/
-Backend/bin/
-Backend/obj/
+Backend/**/bin/
+Backend/**/obj/
 Backend/.vs/
+Backend/**/*.db
+bfg.jar
