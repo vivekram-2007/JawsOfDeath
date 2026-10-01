@@ -7,6 +7,7 @@ public class ZombieAI : MonoBehaviour
     public float giveUpRange = 25f;
     public float attackRange = 2f;
     public float fleeDistance = 15f;
+    public float turnSpeed = 10f;
 
     private NavMeshAgent agent;
     private Transform player;
@@ -19,6 +20,7 @@ public class ZombieAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false; // we rotate manually
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         renderers = GetComponentsInChildren<Renderer>();
@@ -59,10 +61,13 @@ public class ZombieAI : MonoBehaviour
             animator.SetBool("IsAttacking", false);
             agent.isStopped = false;
             agent.SetDestination(fleeTarget);
+            FaceDirection(fleeDirection);
         }
         else
         {
-            // Normal chase
+            // Normal chase: always face the player
+            FaceDirection(player.position - transform.position);
+
             animator.SetBool("IsChasing", true);
             agent.isStopped = false;
             agent.SetDestination(player.position);
@@ -77,6 +82,14 @@ public class ZombieAI : MonoBehaviour
                 animator.SetBool("IsAttacking", false);
             }
         }
+    }
+
+    void FaceDirection(Vector3 dir)
+    {
+        dir.y = 0;
+        if (dir.sqrMagnitude < 0.01f) return;
+        Quaternion target = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, target, turnSpeed * Time.deltaTime);
     }
 
     void SetVisible(bool visible)
