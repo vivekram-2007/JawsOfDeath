@@ -63,6 +63,7 @@
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_FPSDisplay.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureReceiveToRendererMaterial.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\scripts\SafeZone.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScale.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_CameraController.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\VolumetricFogController.cs" />

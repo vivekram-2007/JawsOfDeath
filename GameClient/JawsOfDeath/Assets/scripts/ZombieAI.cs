@@ -3,13 +3,18 @@ using UnityEngine.AI;
 
 public class ZombieAI : MonoBehaviour
 {
-    public float chaseRange = 15f;
     public float appearRange = 10f;
+    public float giveUpRange = 25f;
+    public float attackRange = 2f;
+
     private NavMeshAgent agent;
     private Transform player;
     private Renderer[] renderers;
     private Animator animator;
-    private bool hasSpotted = false;
+    private bool isChasing = false;
+
+    // Shared by ALL zombies — true when player is in any safe zone
+    public static bool playerInSafeZone = false;
 
     void Start()
     {
@@ -26,31 +31,42 @@ public class ZombieAI : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        if (distance <= appearRange)
-            SetVisible(true);
-        else
-            SetVisible(false);
-
-        if (distance <= chaseRange)
+        // Start chasing once player gets close enough
+        if (!isChasing && distance <= appearRange)
         {
+            isChasing = true;
+            SetVisible(true);
+        }
+
+        // Stop chasing if player is in a safe zone, or got too far away
+        if (isChasing && (playerInSafeZone || distance > giveUpRange))
+        {
+            isChasing = false;
+        }
+
+        if (isChasing)
+        {
+            animator.SetBool("IsChasing", true);
+            agent.isStopped = false;
             agent.SetDestination(player.position);
-            if (!hasSpotted)
+
+            if (distance <= attackRange)
             {
-                animator.SetTrigger("SpotPlayer");
-                hasSpotted = true;
+                animator.SetBool("IsAttacking", true);
+                agent.isStopped = true;
+            }
+            else
+            {
+                animator.SetBool("IsAttacking", false);
             }
         }
         else
         {
-            hasSpotted = false;
+            animator.SetBool("IsChasing", false);
+            animator.SetBool("IsAttacking", false);
+            agent.isStopped = true;
+            SetVisible(false);
         }
-    }
-
-    void LateUpdate()
-    {
-        Vector3 pos = transform.position;
-        pos.y = 1f;
-        transform.position = pos;
     }
 
     void SetVisible(bool visible)
