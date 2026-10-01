@@ -6,14 +6,14 @@ public class ZombieAI : MonoBehaviour
     public float appearRange = 10f;
     public float giveUpRange = 25f;
     public float attackRange = 2f;
+    public float fleeDistance = 15f;
 
     private NavMeshAgent agent;
     private Transform player;
     private Renderer[] renderers;
     private Animator animator;
-    private bool isChasing = false;
+    private bool hasAppeared = false;
 
-    // Shared by ALL zombies — true when player is in any safe zone
     public static bool playerInSafeZone = false;
 
     void Start()
@@ -31,21 +31,38 @@ public class ZombieAI : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // Start chasing once player gets close enough
-        if (!isChasing && distance <= appearRange)
+        // Appear once, stay visible forever after (until killed)
+        if (!hasAppeared && distance <= appearRange)
         {
-            isChasing = true;
+            hasAppeared = true;
             SetVisible(true);
         }
 
-        // Stop chasing if player is in a safe zone, or got too far away
-        if (isChasing && (playerInSafeZone || distance > giveUpRange))
+        if (!hasAppeared) return; // still dormant, do nothing
+
+        // Give up if player got too far away
+        if (distance > giveUpRange)
         {
-            isChasing = false;
+            animator.SetBool("IsChasing", false);
+            animator.SetBool("IsAttacking", false);
+            agent.isStopped = true;
+            return;
         }
 
-        if (isChasing)
+        if (playerInSafeZone)
         {
+            // Flee: run in the opposite direction from the player
+            Vector3 fleeDirection = (transform.position - player.position).normalized;
+            Vector3 fleeTarget = transform.position + fleeDirection * fleeDistance;
+
+            animator.SetBool("IsChasing", true); // reuse running animation
+            animator.SetBool("IsAttacking", false);
+            agent.isStopped = false;
+            agent.SetDestination(fleeTarget);
+        }
+        else
+        {
+            // Normal chase
             animator.SetBool("IsChasing", true);
             agent.isStopped = false;
             agent.SetDestination(player.position);
@@ -59,13 +76,6 @@ public class ZombieAI : MonoBehaviour
             {
                 animator.SetBool("IsAttacking", false);
             }
-        }
-        else
-        {
-            animator.SetBool("IsChasing", false);
-            animator.SetBool("IsAttacking", false);
-            agent.isStopped = true;
-            SetVisible(false);
         }
     }
 
