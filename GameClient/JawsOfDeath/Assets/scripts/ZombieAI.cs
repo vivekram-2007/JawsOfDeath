@@ -8,12 +8,16 @@ public class ZombieAI : MonoBehaviour
     public float attackRange = 2f;
     public float fleeDistance = 15f;
     public float turnSpeed = 10f;
+    public float damage = 10f;
+    public float attackCooldown = 1.5f;
 
     private NavMeshAgent agent;
     private Transform player;
+    private PlayerHealth playerHealth;
     private Renderer[] renderers;
     private Animator animator;
     private bool hasAppeared = false;
+    private float nextAttackTime = 0f;
 
     public static bool playerInSafeZone = false;
 
@@ -23,6 +27,7 @@ public class ZombieAI : MonoBehaviour
         agent.updateRotation = false; // we rotate manually
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        playerHealth = player.GetComponent<PlayerHealth>();
         renderers = GetComponentsInChildren<Renderer>();
         SetVisible(false);
     }
@@ -30,6 +35,15 @@ public class ZombieAI : MonoBehaviour
     void Update()
     {
         if (player == null) return;
+
+        // Stop everything once the player is dead
+        if (playerHealth != null && playerHealth.currentHealth <= 0)
+        {
+            animator.SetBool("IsChasing", false);
+            animator.SetBool("IsAttacking", false);
+            agent.isStopped = true;
+            return;
+        }
 
         float distance = Vector3.Distance(transform.position, player.position);
 
@@ -76,6 +90,12 @@ public class ZombieAI : MonoBehaviour
             {
                 animator.SetBool("IsAttacking", true);
                 agent.isStopped = true;
+
+                if (Time.time >= nextAttackTime)
+                {
+                    nextAttackTime = Time.time + attackCooldown;
+                    if (playerHealth != null) playerHealth.TakeDamage(damage);
+                }
             }
             else
             {

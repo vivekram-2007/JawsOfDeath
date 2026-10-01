@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Assets\scripts\ZombieHealth.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_CameraCopyFrom.cs" />
+    <Compile Include="Assets\scripts\PlayerHealth.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScaleDropdownUI.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTexture.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\FullscreenCustomLightingFeature.cs" />
