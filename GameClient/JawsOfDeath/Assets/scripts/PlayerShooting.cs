@@ -14,20 +14,35 @@ public class PlayerShooting : MonoBehaviour
     public int magazineSize = 12;
     public float reloadTime = 1.5f;      // press F to reload
 
+    [Header("Crosshair")]
+    public float crosshairSize = 24f;    // circle size in pixels
+    public float bloomPerShot = 5f;      // pixels added per shot
+    public float maxBloom = 18f;         // max extra pixels
+    public float bloomRecover = 30f;     // pixels per second it shrinks back
+    public float sizeSmoothTime = 0.06f; // lower = snappier, higher = smoother
+    public float colorSmoothSpeed = 14f; // how fast the red fade happens
+    public Color normalColor = new Color(1f, 1f, 1f, 0.9f);
+    public Color enemyColor = new Color(1f, 0.1f, 0.1f, 1f);
+
     private float nextFire;
     private int ammo;
     private bool reloading;
     private float reloadEnd;
+    private float bloom;
+    private float displaySize;
+    private float sizeVelocity;
 
     private PlayerHealth health;
     private Text ammoText;
     private Image crosshair;
+    private RectTransform crosshairRect;
 
     void Start()
     {
         if (playerCamera == null) playerCamera = Camera.main;
         health = GetComponent<PlayerHealth>();
         ammo = magazineSize;
+        displaySize = crosshairSize;
         BuildUI();
         UpdateUI();
     }
@@ -39,6 +54,7 @@ public class PlayerShooting : MonoBehaviour
         if (health != null && health.currentHealth <= 0)
         {
             reloading = false;
+            bloom = 0f;
             crosshair.enabled = false;
             return;
         }
@@ -57,6 +73,7 @@ public class PlayerShooting : MonoBehaviour
             {
                 nextFire = Time.time + fireRate;
                 ammo--;
+                bloom = Mathf.Min(bloom + bloomPerShot, maxBloom);
                 Shoot();
             }
             else
@@ -64,6 +81,8 @@ public class PlayerShooting : MonoBehaviour
                 StartReload();
             }
         }
+
+        bloom = Mathf.MoveTowards(bloom, 0f, bloomRecover * Time.deltaTime);
 
         UpdateUI();
     }
@@ -93,10 +112,63 @@ public class PlayerShooting : MonoBehaviour
         }
     }
 
+    ZombieHealth ZombieUnderCrosshair()
+    {
+        Transform cam = playerCamera.transform;
+        RaycastHit[] hits = Physics.RaycastAll(cam.position, cam.forward, range, ~0, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
+            return hit.collider.GetComponentInParent<ZombieHealth>();
+        }
+        return null;
+    }
+
     void UpdateUI()
     {
         ammoText.text = reloading ? "RELOADING" : ammo + " / " + magazineSize;
-        crosshair.enabled = ThirdPersonController.IsAiming;
+
+        bool aiming = ThirdPersonController.IsAiming;
+        crosshair.enabled = aiming;
+        if (!aiming)
+        {
+            displaySize = crosshairSize;
+            sizeVelocity = 0f;
+            return;
+        }
+
+        // smooth size
+        displaySize = Mathf.SmoothDamp(displaySize, crosshairSize + bloom, ref sizeVelocity, sizeSmoothTime);
+        crosshairRect.sizeDelta = new Vector2(displaySize, displaySize);
+
+        // smooth color
+        Color target = ZombieUnderCrosshair() != null ? enemyColor : normalColor;
+        crosshair.color = Color.Lerp(crosshair.color, target, 1f - Mathf.Exp(-colorSmoothSpeed * Time.deltaTime));
+    }
+
+    Sprite MakeRingSprite()
+    {
+        int s = 256;
+        Texture2D tex = new Texture2D(s, s, TextureFormat.RGBA32, true);
+        float c = (s - 1) * 0.5f;
+        float outer = s * 0.5f - 3f;
+        float inner = outer - 12f;
+        for (int y = 0; y < s; y++)
+        {
+            for (int x = 0; x < s; x++)
+            {
+                float d = Vector2.Distance(new Vector2(x, y), new Vector2(c, c));
+                // 2px soft edge on both sides for smooth anti-aliasing
+                float a = Mathf.SmoothStep(0f, 1f, (outer - d) / 2f) * Mathf.SmoothStep(0f, 1f, (d - inner) / 2f);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+            }
+        }
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Trilinear;
+        tex.Apply(true);
+        return Sprite.Create(tex, new Rect(0, 0, s, s), new Vector2(0.5f, 0.5f), 100f);
     }
 
     void BuildUI()
@@ -108,17 +180,17 @@ public class PlayerShooting : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
 
-        // Crosshair dot (screen center)
+        // Crosshair circle (screen center)
         GameObject dot = new GameObject("Crosshair");
         dot.transform.SetParent(canvasObj.transform, false);
         crosshair = dot.AddComponent<Image>();
-        crosshair.color = new Color(1f, 1f, 1f, 0.95f);
+        crosshair.sprite = MakeRingSprite();
+        crosshair.color = normalColor;
         crosshair.raycastTarget = false;
-        dot.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
-        RectTransform dotRect = dot.GetComponent<RectTransform>();
-        dotRect.anchorMin = dotRect.anchorMax = dotRect.pivot = new Vector2(0.5f, 0.5f);
-        dotRect.anchoredPosition = Vector2.zero;
-        dotRect.sizeDelta = new Vector2(6f, 6f);
+        crosshairRect = dot.GetComponent<RectTransform>();
+        crosshairRect.anchorMin = crosshairRect.anchorMax = crosshairRect.pivot = new Vector2(0.5f, 0.5f);
+        crosshairRect.anchoredPosition = Vector2.zero;
+        crosshairRect.sizeDelta = new Vector2(crosshairSize, crosshairSize);
         crosshair.enabled = false;
 
         // Ammo counter (top right)
