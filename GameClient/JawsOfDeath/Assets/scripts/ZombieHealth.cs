@@ -3,6 +3,7 @@ using UnityEngine;
 public class ZombieHealth : MonoBehaviour
 {
     public int maxHealth = 50;
+    public bool requiresFire = false;   // tick this on the boss
     private int currentHealth;
 
     void Start()
@@ -12,6 +13,8 @@ public class ZombieHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (requiresFire && !OrbPickup.hasFire) return;
+
         currentHealth -= amount;
         if (currentHealth <= 0)
         {

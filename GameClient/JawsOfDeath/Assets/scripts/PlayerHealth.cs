@@ -39,7 +39,11 @@ public class PlayerHealth : MonoBehaviour
         {
             currentHealth = 0;
             lastDeathPosition = transform.position;
-            PlaceDeathFire();
+            if (OrbPickup.hasFire)
+            {
+                PlaceDeathFire();
+                OrbPickup.LoseFire();
+            }
             StartCoroutine(DeathSequence());
         }
     }

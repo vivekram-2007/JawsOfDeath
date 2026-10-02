@@ -14,6 +14,9 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
+        // true while right mouse is held (read by PlayerShooting for the crosshair)
+        public static bool IsAiming;
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -86,9 +89,23 @@ namespace StarterAssets
         [Tooltip("How fast the camera swings to look behind (hold R), in degrees per second")]
         public float LookBehindSpeed = 700.0f;
 
+        [Header("Aim (hold right mouse)")]
+        [Tooltip("How far the camera target slides forward while aiming (camera distance is about 2, so 0.9 leaves about 1.1)")]
+        public float AimZoomForward = 0.9f;
+
+        [Tooltip("Extra sideways slide of the camera target while aiming (positive = more over the right shoulder)")]
+        public float AimZoomRight = 0.0f;
+
+        [Tooltip("How fast the zoom blends in and out (1 = one second)")]
+        public float AimZoomSpeed = 6.0f;
+
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
+
+        // aim
+        private float _aimBlend;
+        private Vector3 _targetBaseLocalPos;
 
         // look behind
         private float _lookBehindOffset;
@@ -155,6 +172,7 @@ namespace StarterAssets
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
+            _targetBaseLocalPos = CinemachineCameraTarget.transform.localPosition;
 
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
@@ -175,6 +193,12 @@ namespace StarterAssets
         private void Update()
         {
             _hasAnimator = TryGetComponent(out _animator);
+
+            // hold right mouse to aim
+            IsAiming = false;
+#if ENABLE_INPUT_SYSTEM
+            IsAiming = Mouse.current != null && Mouse.current.rightButton.isPressed;
+#endif
 
             JumpAndGravity();
             GroundedCheck();
@@ -245,6 +269,18 @@ namespace StarterAssets
             // Cinemachine will follow this target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
                 _cinemachineTargetYaw + _lookBehindOffset, 0.0f);
+
+            // aim zoom: slide the target forward so the camera sits closer to the character
+            _aimBlend = Mathf.MoveTowards(_aimBlend, IsAiming ? 1f : 0f, AimZoomSpeed * Time.deltaTime);
+            float t = Mathf.SmoothStep(0f, 1f, _aimBlend);
+
+            Transform targetTf = CinemachineCameraTarget.transform;
+            Vector3 basePos = targetTf.parent != null
+                ? targetTf.parent.TransformPoint(_targetBaseLocalPos)
+                : _targetBaseLocalPos;
+            Quaternion yawRot = Quaternion.Euler(0f, _cinemachineTargetYaw + _lookBehindOffset, 0f);
+            Vector3 zoomOffset = yawRot * new Vector3(AimZoomRight, 0f, AimZoomForward);
+            targetTf.position = basePos + zoomOffset * t;
         }
 
         private void Move()
@@ -302,38 +338,56 @@ namespace StarterAssets
                 Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
                 Vector3 camRelative = camRot * inputDirection;
 
-                if (_dirLocked)
+                if (IsAiming)
                 {
-                    // keep running the same world direction while the camera swings round
-                    targetDirection = _lockedDir;
+                    // aiming: move relative to the camera, no auto camera swing
+                    _runTimer = 0f;
+                    _dirLocked = false;
+                    targetDirection = camRelative;
                 }
                 else
                 {
-                    targetDirection = camRelative;
-
-                    // running away from the camera direction (A, S, D)? start the timer
-                    float angle = Vector3.Angle(camRot * Vector3.forward, camRelative);
-                    if (angle > 45f)
+                    if (_dirLocked)
                     {
-                        _runTimer += Time.deltaTime;
-                        if (_runTimer >= CameraFollowDelay)
-                        {
-                            _dirLocked = true;
-                            _lockedDir = camRelative;
-                            _cameraFollowYaw = Mathf.Atan2(camRelative.x, camRelative.z) * Mathf.Rad2Deg;
-                        }
+                        // keep running the same world direction while the camera swings round
+                        targetDirection = _lockedDir;
                     }
                     else
                     {
-                        _runTimer = 0f;
-                    }
-                }
+                        targetDirection = camRelative;
 
-                // turn the character to face the direction it is running
-                float targetYaw = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetYaw, ref _rotationVelocity,
+                        // running away from the camera direction (A, S, D)? start the timer
+                        float angle = Vector3.Angle(camRot * Vector3.forward, camRelative);
+                        if (angle > 45f)
+                        {
+                            _runTimer += Time.deltaTime;
+                            if (_runTimer >= CameraFollowDelay)
+                            {
+                                _dirLocked = true;
+                                _lockedDir = camRelative;
+                                _cameraFollowYaw = Mathf.Atan2(camRelative.x, camRelative.z) * Mathf.Rad2Deg;
+                            }
+                        }
+                        else
+                        {
+                            _runTimer = 0f;
+                        }
+                    }
+
+                    // turn the character to face the direction it is running
+                    float targetYaw = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetYaw, ref _rotationVelocity,
+                        RotationSmoothTime);
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                }
+            }
+
+            // aiming: always face where the camera points, even when standing still
+            if (IsAiming)
+            {
+                float aimRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraYaw, ref _rotationVelocity,
                     RotationSmoothTime);
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                transform.rotation = Quaternion.Euler(0.0f, aimRotation, 0.0f);
             }
 
             _lastInput = _input.move;
