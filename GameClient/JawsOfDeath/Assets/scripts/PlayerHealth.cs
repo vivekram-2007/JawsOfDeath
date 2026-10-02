@@ -9,6 +9,10 @@ public class PlayerHealth : MonoBehaviour
     public Vector3 lastDeathPosition;
     public Font deathFont; // optional: drag a .ttf here to override the default serif
 
+    public GameObject deathFirePrefab; // drag Fire001 prefab here
+    public float deathFireScale = 1f;
+
+    private GameObject deathFire;
     private Vector3 startPosition;
     private Quaternion startRotation;
     private CharacterController controller;
@@ -35,8 +39,17 @@ public class PlayerHealth : MonoBehaviour
         {
             currentHealth = 0;
             lastDeathPosition = transform.position;
+            PlaceDeathFire();
             StartCoroutine(DeathSequence());
         }
+    }
+
+    void PlaceDeathFire()
+    {
+        if (deathFire != null) Destroy(deathFire);
+        if (deathFirePrefab == null) return;
+        deathFire = Instantiate(deathFirePrefab, lastDeathPosition, Quaternion.identity);
+        deathFire.transform.localScale = Vector3.one * deathFireScale;
     }
 
     void UpdateBar()

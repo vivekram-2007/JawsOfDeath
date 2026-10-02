@@ -3,6 +3,7 @@ using UnityEngine;
 public class OrbPickup : MonoBehaviour
 {
     public static bool hasFire = false;
+    private static GameObject bodyFire;
 
     public GameObject fireEffectPrefab; // drag Fire001 prefab here
     public Vector3 fireOffset = new Vector3(0f, 1f, 0f);
@@ -11,16 +12,22 @@ public class OrbPickup : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+        if (hasFire) return;
 
         hasFire = true;
 
         if (fireEffectPrefab != null)
         {
-            GameObject fire = Instantiate(fireEffectPrefab, other.transform);
-            fire.transform.localPosition = fireOffset;
-            fire.transform.localScale = Vector3.one * fireScale;
+            bodyFire = Instantiate(fireEffectPrefab, other.transform);
+            bodyFire.transform.localPosition = fireOffset;
+            bodyFire.transform.localScale = Vector3.one * fireScale;
         }
+    }
 
-        Destroy(gameObject);
+    public static void LoseFire()
+    {
+        if (bodyFire != null) Destroy(bodyFire);
+        bodyFire = null;
+        hasFire = false;
     }
 }
