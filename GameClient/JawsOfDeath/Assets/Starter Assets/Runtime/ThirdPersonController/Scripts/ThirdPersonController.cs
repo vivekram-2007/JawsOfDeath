@@ -82,9 +82,16 @@ namespace StarterAssets
         [Tooltip("How fast the camera swings behind the character, in degrees per second")]
         public float CameraFollowSpeed = 120.0f;
 
+        [Header("Look Behind")]
+        [Tooltip("How fast the camera swings to look behind (hold R), in degrees per second")]
+        public float LookBehindSpeed = 700.0f;
+
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
+
+        // look behind
+        private float _lookBehindOffset;
 
         // camera follow
         private float _runTimer;
@@ -223,13 +230,21 @@ namespace StarterAssets
                     CameraFollowSpeed * Time.deltaTime);
             }
 
+            // hold R to look behind
+            bool lookBehind = false;
+#if ENABLE_INPUT_SYSTEM
+            lookBehind = Keyboard.current != null && Keyboard.current.rKey.isPressed;
+#endif
+            _lookBehindOffset = Mathf.MoveTowards(_lookBehindOffset, lookBehind ? 180f : 0f,
+                LookBehindSpeed * Time.deltaTime);
+
             // clamp our rotations so our values are limited 360 degrees
             _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
             // Cinemachine will follow this target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
-                _cinemachineTargetYaw, 0.0f);
+                _cinemachineTargetYaw + _lookBehindOffset, 0.0f);
         }
 
         private void Move()
@@ -264,8 +279,8 @@ namespace StarterAssets
             _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
-            // camera yaw: movement is relative to this
-            float cameraYaw = _mainCamera.transform.eulerAngles.y;
+            // camera yaw: movement is relative to this (look-behind offset removed so controls don't flip)
+            float cameraYaw = _mainCamera.transform.eulerAngles.y - _lookBehindOffset;
             Quaternion camRot = Quaternion.Euler(0.0f, cameraYaw, 0.0f);
 
             Vector3 targetDirection = Vector3.zero;

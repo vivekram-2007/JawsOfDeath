@@ -52,6 +52,7 @@
     <Compile Include="Assets\scripts\ZombieHealth.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_CameraCopyFrom.cs" />
     <Compile Include="Assets\scripts\PlayerHealth.cs" />
+    <Compile Include="Assets\scripts\OrbPickup.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScaleDropdownUI.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTexture.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\FullscreenCustomLightingFeature.cs" />
@@ -67,7 +68,9 @@
     <Compile Include="Assets\scripts\SafeZone.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetRenderScale.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_CameraController.cs" />
+    <Compile Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Scripts\DistortionContextItem_RenderGraph.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\VolumetricFogController.cs" />
+    <Compile Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Scripts\DeprecationMessage.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureSendToMaterial.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_Rotator.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetFPSOnStart.cs" />
@@ -76,16 +79,28 @@
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_RenderScaleSliderUI.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberDepthNormalsCore.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberDepthNormals.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Functions.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Fresnel.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUber.hlsl" />
+    <None Include="Assets\N2Studio\Third-Party Notices.txt" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Rotation.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberDepthOnly.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\Particles.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hash.hlsl" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\Triplanar.shader" />
     <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\README.txt" />
     <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Shaders\Volumetric Fog.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlitEditor.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hex.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlitForward.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlit.shader" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberShadowCaster.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesInstancing.hlsl" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\ArmatureShader.shader" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Blocks.hlsl" />
+    <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlit.hlsl" />
     <None Include="Assets\Barking_Dog\3D Free Modular Kit\Readme_Please.txt" />
   </ItemGroup>
   <ItemGroup>
