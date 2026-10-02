@@ -5,11 +5,11 @@ public class ZombieAI : MonoBehaviour
 {
     public float appearRange = 10f;
     public float giveUpRange = 25f;
-    public float attackRange = 2f;
+    public float attackRange = 1.2f;
     public float fleeDistance = 15f;
     public float turnSpeed = 10f;
     public float damage = 10f;
-    public float attackCooldown = 1.5f;
+    [Range(0.1f, 1f)] public float hitPoint = 0.9f; // how far through the attack animation the hit lands
 
     private NavMeshAgent agent;
     private Transform player;
@@ -17,7 +17,7 @@ public class ZombieAI : MonoBehaviour
     private Renderer[] renderers;
     private Animator animator;
     private bool hasAppeared = false;
-    private float nextAttackTime = 0f;
+    private int lastHitLoop = -1;
 
     public static bool playerInSafeZone = false;
 
@@ -25,6 +25,7 @@ public class ZombieAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false; // we rotate manually
+        agent.stoppingDistance = 0f;
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         playerHealth = player.GetComponent<PlayerHealth>();
@@ -42,10 +43,14 @@ public class ZombieAI : MonoBehaviour
             animator.SetBool("IsChasing", false);
             animator.SetBool("IsAttacking", false);
             agent.isStopped = true;
+            lastHitLoop = -1;
             return;
         }
 
         float distance = Vector3.Distance(transform.position, player.position);
+        Vector3 flat = player.position - transform.position;
+        flat.y = 0;
+        float flatDistance = flat.magnitude;
 
         // Appear once, stay visible forever after (until killed)
         if (!hasAppeared && distance <= appearRange)
@@ -62,6 +67,7 @@ public class ZombieAI : MonoBehaviour
             animator.SetBool("IsChasing", false);
             animator.SetBool("IsAttacking", false);
             agent.isStopped = true;
+            lastHitLoop = -1;
             return;
         }
 
@@ -76,6 +82,7 @@ public class ZombieAI : MonoBehaviour
             agent.isStopped = false;
             agent.SetDestination(fleeTarget);
             FaceDirection(fleeDirection);
+            lastHitLoop = -1;
         }
         else
         {
@@ -86,21 +93,38 @@ public class ZombieAI : MonoBehaviour
             agent.isStopped = false;
             agent.SetDestination(player.position);
 
-            if (distance <= attackRange)
+            if (flatDistance <= attackRange)
             {
                 animator.SetBool("IsAttacking", true);
                 agent.isStopped = true;
-
-                if (Time.time >= nextAttackTime)
-                {
-                    nextAttackTime = Time.time + attackCooldown;
-                    if (playerHealth != null) playerHealth.TakeDamage(damage);
-                }
+                TryHitOnAnimation(flatDistance);
             }
             else
             {
                 animator.SetBool("IsAttacking", false);
+                lastHitLoop = -1;
             }
+        }
+    }
+
+    // Deals damage once per attack animation loop, at hitPoint
+    void TryHitOnAnimation(float flatDistance)
+    {
+        AnimatorStateInfo s = animator.GetCurrentAnimatorStateInfo(0);
+        if (!s.IsName("attack") || animator.IsInTransition(0))
+        {
+            lastHitLoop = -1;
+            return;
+        }
+
+        int loop = Mathf.FloorToInt(s.normalizedTime);
+        float frac = s.normalizedTime - loop;
+
+        if (frac >= hitPoint && loop != lastHitLoop)
+        {
+            lastHitLoop = loop;
+            if (playerHealth != null && flatDistance <= attackRange + 0.5f)
+                playerHealth.TakeDamage(damage);
         }
     }
 

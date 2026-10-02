@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.381132, g: 0.34445706, b: 0.34445706, a: 0.9137255}
   m_FogMode: 3
-  m_FogDensity: 0
+  m_FogDensity: 0.131
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -379,7 +379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!199 &201200976
 ParticleSystemRenderer:
   serializedVersion: 7
@@ -6901,7 +6901,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4416926081852918481, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1884955989}
   m_SourcePrefab: {fileID: 100100000, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
 --- !u!4 &1013347754 stripped
 Transform:
@@ -7553,7 +7556,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1667460040
 Transform:
   m_ObjectHideFlags: 0
@@ -7563,7 +7566,7 @@ Transform:
   m_GameObject: {fileID: 1667460039}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 73.0362, y: 12.6771345, z: 43.224422}
+  m_LocalPosition: {x: 73.0362, y: 7.6658254, z: 43.224422}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8142,6 +8145,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9154985795129391474, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
   m_PrefabInstance: {fileID: 1688233376}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1884955982 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4416926081852918481, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
+  m_PrefabInstance: {fileID: 1011805489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1884955989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884955982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d55d80be504c344b2e32a920d5ea1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  maxHealth: 100
+  currentHealth: 0
+  lastDeathPosition: {x: 0, y: 0, z: 0}
+  deathFont: {fileID: 0}
 --- !u!4 &1939226133 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9154985795129391474, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
@@ -8709,6 +8733,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1588225682626241148, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
+      propertyPath: damage
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1588225682626241148, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
+      propertyPath: hitPoint
+      value: 0.505
+      objectReference: {fileID: 0}
+    - target: {fileID: 1588225682626241148, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
+      propertyPath: attackRange
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6681492060110082400, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
       propertyPath: m_Name
       value: ZombiePlaceholder
