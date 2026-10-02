@@ -21,7 +21,7 @@ namespace StarterAssets
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 5.335f;
 
-        [Tooltip("How fast the character turns to face the camera direction")]
+        [Tooltip("How fast the character turns to face the running direction")]
         [Range(0.0f, 0.3f)]
         public float RotationSmoothTime = 0.12f;
 
@@ -75,9 +75,23 @@ namespace StarterAssets
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
 
+        [Header("Camera Follow")]
+        [Tooltip("Seconds of running in a side/back direction before the camera swings behind the character")]
+        public float CameraFollowDelay = 2.0f;
+
+        [Tooltip("How fast the camera swings behind the character, in degrees per second")]
+        public float CameraFollowSpeed = 120.0f;
+
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
+
+        // camera follow
+        private float _runTimer;
+        private bool _dirLocked;
+        private Vector3 _lockedDir;
+        private Vector2 _lastInput;
+        private float _cameraFollowYaw;
 
         // player
         private float _speed;
@@ -191,14 +205,22 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
+            bool mouseMoving = _input.look.sqrMagnitude >= _threshold;
+
             // if there is an input and camera position is not fixed
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+            if (mouseMoving && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
                 _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
                 _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+            }
+            else if (_dirLocked && !LockCameraPosition)
+            {
+                // after the delay, swing the camera behind the character (mouse movement pauses this)
+                _cinemachineTargetYaw = Mathf.MoveTowardsAngle(_cinemachineTargetYaw, _cameraFollowYaw,
+                    CameraFollowSpeed * Time.deltaTime);
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -242,20 +264,64 @@ namespace StarterAssets
             _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
-            // camera yaw: the character always faces this direction
+            // camera yaw: movement is relative to this
             float cameraYaw = _mainCamera.transform.eulerAngles.y;
+            Quaternion camRot = Quaternion.Euler(0.0f, cameraYaw, 0.0f);
 
-            // face the camera direction while moving (no turning toward A / D / S)
-            if (_input.move != Vector2.zero)
+            Vector3 targetDirection = Vector3.zero;
+
+            if (_input.move == Vector2.zero)
             {
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraYaw, ref _rotationVelocity,
+                _runTimer = 0f;
+                _dirLocked = false;
+            }
+            else
+            {
+                // key changed: start over
+                if ((_input.move - _lastInput).sqrMagnitude > 0.01f)
+                {
+                    _runTimer = 0f;
+                    _dirLocked = false;
+                }
+
+                Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
+                Vector3 camRelative = camRot * inputDirection;
+
+                if (_dirLocked)
+                {
+                    // keep running the same world direction while the camera swings round
+                    targetDirection = _lockedDir;
+                }
+                else
+                {
+                    targetDirection = camRelative;
+
+                    // running away from the camera direction (A, S, D)? start the timer
+                    float angle = Vector3.Angle(camRot * Vector3.forward, camRelative);
+                    if (angle > 45f)
+                    {
+                        _runTimer += Time.deltaTime;
+                        if (_runTimer >= CameraFollowDelay)
+                        {
+                            _dirLocked = true;
+                            _lockedDir = camRelative;
+                            _cameraFollowYaw = Mathf.Atan2(camRelative.x, camRelative.z) * Mathf.Rad2Deg;
+                        }
+                    }
+                    else
+                    {
+                        _runTimer = 0f;
+                    }
+                }
+
+                // turn the character to face the direction it is running
+                float targetYaw = Mathf.Atan2(targetDirection.x, targetDirection.z) * Mathf.Rad2Deg;
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetYaw, ref _rotationVelocity,
                     RotationSmoothTime);
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
-            // move relative to the camera: W forward, S back, A left, D right
-            Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
-            Vector3 targetDirection = Quaternion.Euler(0.0f, cameraYaw, 0.0f) * inputDirection;
+            _lastInput = _input.move;
 
             // move the player
             _controller.Move(targetDirection * (_speed * Time.deltaTime) +
