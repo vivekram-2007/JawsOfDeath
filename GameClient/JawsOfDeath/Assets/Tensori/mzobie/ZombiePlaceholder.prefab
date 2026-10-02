@@ -859,9 +859,9 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 43714b68324cc2c409d534d9874f2a2b, type: 2}
-  - {fileID: 2100000, guid: 766fd3ff04aab4745a764d33daac86fa, type: 2}
-  - {fileID: 2100000, guid: 8b25e99361ac31d4e9ae83c46aee69ea, type: 2}
+  - {fileID: 2100000, guid: 1fb4243ed171985419586c455cb303bc, type: 2}
+  - {fileID: 2100000, guid: 1fb4243ed171985419586c455cb303bc, type: 2}
+  - {fileID: 2100000, guid: 1fb4243ed171985419586c455cb303bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1982,9 +1982,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieAI
   appearRange: 10
   giveUpRange: 30
-  attackRange: 2
+  attackRange: 1.2
   fleeDistance: 15
   turnSpeed: 10
+  damage: 20
+  hitPoint: 0.505
 --- !u!114 &1726774389941767646
 MonoBehaviour:
   m_ObjectHideFlags: 0
