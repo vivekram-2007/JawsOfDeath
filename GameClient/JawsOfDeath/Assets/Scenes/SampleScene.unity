@@ -9618,12 +9618,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5906585caf477ac408bfd9c52c3459a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowBars
-  BarCount: 10
-  BarRadius: 0.14
-  BarDrop: 0.06
-  BarHeight: 0.08
-  BarWidth: 0.025
-  Variation: 0.35
+  RayCount: 4
+  RayReach: 0.935
+  RayWidth: 0.12
+  Variation: 0
+  Compensate: 1
+  ReferenceDistance: 0
+  MinScale: 0.85
+  MaxScale: 3
+  MaxCheckDistance: 6
+  Smoothing: 10
 --- !u!1001 &3892427088067359330
 PrefabInstance:
   m_ObjectHideFlags: 0
