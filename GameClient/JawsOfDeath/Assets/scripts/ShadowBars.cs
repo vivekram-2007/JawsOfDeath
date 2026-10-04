@@ -106,7 +106,7 @@ public class ShadowBars : MonoBehaviour
 
             if (ReferenceDistance <= 0f) ReferenceDistance = d; // auto-calibrate once
 
-            k = Mathf.Clamp(ReferenceDistance / smoothedDistance, MinScale, MaxScale);
+            k = Mathf.Clamp(smoothedDistance / ReferenceDistance, MinScale, MaxScale);
         }
 
         // grow the disc sideways only, never its thickness
