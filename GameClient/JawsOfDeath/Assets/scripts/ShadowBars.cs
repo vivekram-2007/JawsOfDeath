@@ -3,10 +3,15 @@ using UnityEngine;
 [DefaultExecutionOrder(10)]
 public class ShadowBars : MonoBehaviour
 {
-    public int RayCount = 10;
-    [Range(0.1f, 0.99f)] public float RayReach = 0.95f;
+    public int RayCount = 4;
     public float RayWidth = 0.12f;
-    [Range(0f, 0.8f)] public float Variation = 0.2f;
+    [Range(0f, 0.8f)] public float Variation = 0f;
+
+    [Header("Cage")]
+    [Tooltip("How far the bars rise above the light, as a fraction of light-to-disc distance. Higher = never see bar ends.")]
+    public float ExtendAbove = 0.5f;
+    public bool TopCap = true;
+    public float CapOverhang = 1.05f;
 
     [Header("Ground Compensation")]
     public bool Compensate = true;
@@ -22,6 +27,17 @@ public class ShadowBars : MonoBehaviour
     private Vector3 baseDiscScale;
     private float smoothedDistance = -1f;
     private Vector3[] localDirs;
+
+    private Vector3 discCenter;
+    private Transform[] bars;
+    private Vector3[] baseRadial;
+    private float[] baseWidth;
+    private float[] barMidY;
+    private float[] barHeight;
+    private Transform cap;
+    private float baseCapDiameter;
+    private float capY;
+    private float capHalfThickness;
 
     void Start()
     {
@@ -40,11 +56,19 @@ public class ShadowBars : MonoBehaviour
         // where the disc sits relative to the light, in the disc's own frame
         Vector3 toDisc = Quaternion.Inverse(transform.rotation) * (transform.position - lightSource.position);
         float depth = Mathf.Abs(toDisc.y);
-        Vector3 center = new Vector3(toDisc.x, 0f, toDisc.z);
+        discCenter = new Vector3(toDisc.x, 0f, toDisc.z);
         float radius = transform.lossyScale.x * 0.5f;
-        float bottomDepth = depth + transform.lossyScale.y;
+        float thickness = transform.lossyScale.y;
+        float bottomDepth = depth + thickness;
+        float topY = depth * ExtendAbove;
 
         root = new GameObject("ShadowBarsRoot").transform;
+
+        bars = new Transform[RayCount];
+        baseRadial = new Vector3[RayCount];
+        baseWidth = new float[RayCount];
+        barMidY = new float[RayCount];
+        barHeight = new float[RayCount];
 
         Random.InitState(7);
         for (int i = 0; i < RayCount; i++)
@@ -52,23 +76,30 @@ public class ShadowBars : MonoBehaviour
             float a = (i + Random.Range(-0.25f, 0.25f)) / RayCount * Mathf.PI * 2f;
             float v = 1f + Random.Range(-Variation, Variation);
 
-            float reach = Mathf.Clamp(RayReach * v, 0.1f, 0.99f);
-            float topDepth = depth * (1f - reach);
-            float height = bottomDepth - topDepth;
-            float midY = -(bottomDepth + topDepth) * 0.5f;
-            float width = radius * RayWidth * v;
-
             Vector3 radial = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
-            Vector3 pos = center + radial * (radius * 0.97f);
-            pos.y = midY;
+            baseRadial[i] = radial * (radius * 0.97f);
+            baseWidth[i] = radius * RayWidth * v;
+            barHeight[i] = topY + bottomDepth;
+            barMidY[i] = (topY - bottomDepth) * 0.5f;
 
             GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Destroy(bar.GetComponent<Collider>());
             bar.transform.SetParent(root, false);
-            bar.transform.localPosition = pos;
             bar.transform.localRotation = Quaternion.Euler(0f, -a * Mathf.Rad2Deg, 0f);
-            bar.transform.localScale = new Vector3(width, height, width);
             bar.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            bars[i] = bar.transform;
+        }
+
+        if (TopCap)
+        {
+            GameObject c = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Destroy(c.GetComponent<Collider>());
+            c.transform.SetParent(root, false);
+            c.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            cap = c.transform;
+            baseCapDiameter = radius * 2f * CapOverhang;
+            capHalfThickness = Mathf.Max(thickness, 0.005f) * 0.5f;
+            capY = topY + capHalfThickness;
         }
     }
 
@@ -106,7 +137,8 @@ public class ShadowBars : MonoBehaviour
 
             if (ReferenceDistance <= 0f) ReferenceDistance = d; // auto-calibrate once
 
-            k = Mathf.Clamp(smoothedDistance / ReferenceDistance, MinScale, MaxScale);
+            // closer ground = smaller shadow, so grow the cage
+            k = Mathf.Clamp(ReferenceDistance / smoothedDistance, MinScale, MaxScale);
         }
 
         // grow the disc sideways only, never its thickness
@@ -114,7 +146,22 @@ public class ShadowBars : MonoBehaviour
 
         root.position = lightSource.position;
         root.rotation = transform.rotation;
-        root.localScale = new Vector3(k, 1f, k);
+
+        // bars and cap scale around the SAME center as the disc
+        for (int i = 0; i < bars.Length; i++)
+        {
+            bars[i].localPosition = new Vector3(
+                discCenter.x + baseRadial[i].x * k,
+                barMidY[i],
+                discCenter.z + baseRadial[i].z * k);
+            bars[i].localScale = new Vector3(baseWidth[i] * k, barHeight[i], baseWidth[i] * k);
+        }
+
+        if (cap != null)
+        {
+            cap.localPosition = new Vector3(discCenter.x, capY, discCenter.z);
+            cap.localScale = new Vector3(baseCapDiameter * k, capHalfThickness, baseCapDiameter * k);
+        }
     }
 
     void OnDestroy()
