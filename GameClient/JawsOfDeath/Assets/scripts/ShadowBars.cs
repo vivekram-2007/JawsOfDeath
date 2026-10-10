@@ -7,8 +7,16 @@ public class ShadowBars : MonoBehaviour
     public float RayWidth = 0.12f;
     [Range(0f, 0.8f)] public float Variation = 0f;
 
+    [Header("Ray Shape")]
+    [Tooltip("ON = parallel-sided (box) shadow rays. OFF = plain bars (cone-shaped shadow).")]
+    public bool BoxShapedRays = true;
+    [Tooltip("How close to a point the bar tip gets. Smaller = rays run further before ending.")]
+    [Range(0.005f, 0.2f)] public float TipFraction = 0.02f;
+    [Tooltip("Rotates all rays around the light, in degrees. Use this to move rays off the straight-ahead line.")]
+    public float RayAngleOffset = 45f;
+
     [Header("Cage")]
-    [Tooltip("How far the bars rise above the light, as a fraction of light-to-disc distance. Higher = never see bar ends.")]
+    [Tooltip("Cap height above the light (also bar height when Box Shaped Rays is OFF).")]
     public float ExtendAbove = 0.5f;
     public bool TopCap = true;
     public float CapOverhang = 1.05f;
@@ -38,6 +46,42 @@ public class ShadowBars : MonoBehaviour
     private float baseCapDiameter;
     private float capY;
     private float capHalfThickness;
+    private Mesh wedgeMesh;
+
+    // unit wedge: x = radial thickness, y = height, z = tangential width
+    // bottom width 1, top width = topWidth (1 = plain box)
+    static Mesh BuildWedge(float topWidth)
+    {
+        float h = 0.5f;
+        float ht = 0.5f * topWidth;
+
+        Vector3[] v = new Vector3[8];
+        v[0] = new Vector3(-0.5f, -0.5f, -h);
+        v[1] = new Vector3(0.5f, -0.5f, -h);
+        v[2] = new Vector3(0.5f, -0.5f, h);
+        v[3] = new Vector3(-0.5f, -0.5f, h);
+        v[4] = new Vector3(-0.5f, 0.5f, -ht);
+        v[5] = new Vector3(0.5f, 0.5f, -ht);
+        v[6] = new Vector3(0.5f, 0.5f, ht);
+        v[7] = new Vector3(-0.5f, 0.5f, ht);
+
+        int[] t =
+        {
+            0,1,2, 0,2,3,   // bottom
+            4,6,5, 4,7,6,   // top
+            0,4,5, 0,5,1,   // -z side
+            3,2,6, 3,6,7,   // +z side
+            0,3,7, 0,7,4,   // -x side
+            1,6,2, 1,5,6    // +x side
+        };
+
+        Mesh m = new Mesh();
+        m.vertices = v;
+        m.triangles = t;
+        m.RecalculateNormals();
+        m.RecalculateBounds();
+        return m;
+    }
 
     void Start()
     {
@@ -60,7 +104,22 @@ public class ShadowBars : MonoBehaviour
         float radius = transform.lossyScale.x * 0.5f;
         float thickness = transform.lossyScale.y;
         float bottomDepth = depth + thickness;
-        float topY = depth * ExtendAbove;
+
+        // bar top: just below the light when box-shaped (tip ends far away), above the light otherwise
+        float topY;
+        float topWidth;
+        if (BoxShapedRays)
+        {
+            topWidth = Mathf.Clamp(TipFraction, 0.005f, 1f);
+            topY = -bottomDepth * topWidth;
+        }
+        else
+        {
+            topWidth = 1f;
+            topY = depth * ExtendAbove;
+        }
+
+        wedgeMesh = BuildWedge(topWidth);
 
         root = new GameObject("ShadowBarsRoot").transform;
 
@@ -73,7 +132,7 @@ public class ShadowBars : MonoBehaviour
         Random.InitState(7);
         for (int i = 0; i < RayCount; i++)
         {
-            float a = (i + Random.Range(-0.25f, 0.25f)) / RayCount * Mathf.PI * 2f;
+            float a = (i + Random.Range(-0.25f, 0.25f)) / RayCount * Mathf.PI * 2f + RayAngleOffset * Mathf.Deg2Rad;
             float v = 1f + Random.Range(-Variation, Variation);
 
             Vector3 radial = new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a));
@@ -84,6 +143,7 @@ public class ShadowBars : MonoBehaviour
 
             GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Destroy(bar.GetComponent<Collider>());
+            bar.GetComponent<MeshFilter>().sharedMesh = wedgeMesh;
             bar.transform.SetParent(root, false);
             bar.transform.localRotation = Quaternion.Euler(0f, -a * Mathf.Rad2Deg, 0f);
             bar.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
@@ -99,7 +159,7 @@ public class ShadowBars : MonoBehaviour
             cap = c.transform;
             baseCapDiameter = radius * 2f * CapOverhang;
             capHalfThickness = Mathf.Max(thickness, 0.005f) * 0.5f;
-            capY = topY + capHalfThickness;
+            capY = depth * ExtendAbove + capHalfThickness;
         }
     }
 
@@ -167,5 +227,6 @@ public class ShadowBars : MonoBehaviour
     void OnDestroy()
     {
         if (root != null) Destroy(root.gameObject);
+        if (wedgeMesh != null) Destroy(wedgeMesh);
     }
 }

@@ -9619,9 +9619,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowBars
   RayCount: 4
-  RayReach: 0.935
-  RayWidth: 0.12
+  RayWidth: 0.25
   Variation: 0
+  BoxShapedRays: 1
+  TipFraction: 0.005
+  RayAngleOffset: 60
+  ExtendAbove: 0.5
+  TopCap: 1
+  CapOverhang: 1.05
   Compensate: 1
   ReferenceDistance: 0
   MinScale: 0.85
