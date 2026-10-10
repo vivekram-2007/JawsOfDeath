@@ -1,22 +1,24 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DefaultExecutionOrder(10)]
 public class ShadowBars : MonoBehaviour
 {
     public int RayCount = 4;
-    public float RayWidth = 0.12f;
+    public float RayWidth = 0.25f;
     [Range(0f, 0.8f)] public float Variation = 0f;
 
     [Header("Ray Shape")]
-    [Tooltip("ON = parallel-sided (box) shadow rays. OFF = plain bars (cone-shaped shadow).")]
+    [Tooltip("ON = straight-sided rays that never pinch to a point. OFF = plain bars.")]
     public bool BoxShapedRays = true;
-    [Tooltip("How close to a point the bar tip gets. Smaller = rays run further before ending.")]
-    [Range(0.005f, 0.2f)] public float TipFraction = 0.02f;
-    [Tooltip("Rotates all rays around the light, in degrees. Use this to move rays off the straight-ahead line.")]
+    [Tooltip("Narrowest the ray gets, as a fraction of its starting width. Lower = straighter near the circle but thinner far away. 1 = plain bar.")]
+    [Range(0.05f, 1f)] public float MinWidthFraction = 0.35f;
+    [Tooltip("How high above flat the rays can climb, in degrees. Higher = rays reach further up hills.")]
+    [Range(5f, 80f)] public float RiseAngle = 35f;
+    [Tooltip("Rotates all rays around the light, in degrees.")]
     public float RayAngleOffset = 45f;
 
     [Header("Cage")]
-    [Tooltip("Cap height above the light (also bar height when Box Shaped Rays is OFF).")]
     public float ExtendAbove = 0.5f;
     public bool TopCap = true;
     public float CapOverhang = 1.05f;
@@ -46,38 +48,44 @@ public class ShadowBars : MonoBehaviour
     private float baseCapDiameter;
     private float capY;
     private float capHalfThickness;
-    private Mesh wedgeMesh;
+    private Mesh shaftMesh;
 
-    // unit wedge: x = radial thickness, y = height, z = tangential width
-    // bottom width 1, top width = topWidth (1 = plain box)
-    static Mesh BuildWedge(float topWidth)
+    // unit shaft: x = radial thickness, y = -0.5..0.5 (bottom..top), z = width
+    // width is 1 at the bottom, narrows to kneeWidth at kneeY, then stays kneeWidth up to the top
+    static Mesh BuildShaft(float kneeY, float kneeWidth)
     {
-        float h = 0.5f;
-        float ht = 0.5f * topWidth;
+        float[] ys = { -0.5f, -0.5f + kneeY, 0.5f };
+        float[] ws = { 1f, kneeWidth, kneeWidth };
 
-        Vector3[] v = new Vector3[8];
-        v[0] = new Vector3(-0.5f, -0.5f, -h);
-        v[1] = new Vector3(0.5f, -0.5f, -h);
-        v[2] = new Vector3(0.5f, -0.5f, h);
-        v[3] = new Vector3(-0.5f, -0.5f, h);
-        v[4] = new Vector3(-0.5f, 0.5f, -ht);
-        v[5] = new Vector3(0.5f, 0.5f, -ht);
-        v[6] = new Vector3(0.5f, 0.5f, ht);
-        v[7] = new Vector3(-0.5f, 0.5f, ht);
-
-        int[] t =
+        Vector3[] v = new Vector3[12];
+        for (int r = 0; r < 3; r++)
         {
-            0,1,2, 0,2,3,   // bottom
-            4,6,5, 4,7,6,   // top
-            0,4,5, 0,5,1,   // -z side
-            3,2,6, 3,6,7,   // +z side
-            0,3,7, 0,7,4,   // -x side
-            1,6,2, 1,5,6    // +x side
-        };
+            float hz = ws[r] * 0.5f;
+            v[r * 4 + 0] = new Vector3(-0.5f, ys[r], -hz);
+            v[r * 4 + 1] = new Vector3(0.5f, ys[r], -hz);
+            v[r * 4 + 2] = new Vector3(0.5f, ys[r], hz);
+            v[r * 4 + 3] = new Vector3(-0.5f, ys[r], hz);
+        }
+
+        List<int> t = new List<int>();
+        t.AddRange(new int[] { 0, 1, 2, 0, 2, 3 });      // bottom
+        t.AddRange(new int[] { 8, 10, 9, 8, 11, 10 });   // top
+        for (int r = 0; r < 2; r++)
+        {
+            int a = r * 4;
+            int b = (r + 1) * 4;
+            t.AddRange(new int[]
+            {
+                a + 0, b + 0, b + 1,  a + 0, b + 1, a + 1,   // -z side
+                a + 3, a + 2, b + 2,  a + 3, b + 2, b + 3,   // +z side
+                a + 0, a + 3, b + 3,  a + 0, b + 3, b + 0,   // -x side
+                a + 1, b + 2, a + 2,  a + 1, b + 1, b + 2    // +x side
+            });
+        }
 
         Mesh m = new Mesh();
         m.vertices = v;
-        m.triangles = t;
+        m.triangles = t.ToArray();
         m.RecalculateNormals();
         m.RecalculateBounds();
         return m;
@@ -105,21 +113,24 @@ public class ShadowBars : MonoBehaviour
         float thickness = transform.lossyScale.y;
         float bottomDepth = depth + thickness;
 
-        // bar top: just below the light when box-shaped (tip ends far away), above the light otherwise
         float topY;
-        float topWidth;
+        float kneeWidth;
+        float kneeY;
         if (BoxShapedRays)
         {
-            topWidth = Mathf.Clamp(TipFraction, 0.005f, 1f);
-            topY = -bottomDepth * topWidth;
+            kneeWidth = Mathf.Clamp(MinWidthFraction, 0.05f, 1f);
+            topY = Mathf.Max(depth * ExtendAbove, radius * Mathf.Tan(RiseAngle * Mathf.Deg2Rad));
+            float kneeDepth = bottomDepth * kneeWidth;
+            kneeY = Mathf.Clamp((bottomDepth - kneeDepth) / (topY + bottomDepth), 0.001f, 0.999f);
         }
         else
         {
-            topWidth = 1f;
+            kneeWidth = 1f;
             topY = depth * ExtendAbove;
+            kneeY = 0.5f;
         }
 
-        wedgeMesh = BuildWedge(topWidth);
+        shaftMesh = BuildShaft(kneeY, kneeWidth);
 
         root = new GameObject("ShadowBarsRoot").transform;
 
@@ -143,7 +154,7 @@ public class ShadowBars : MonoBehaviour
 
             GameObject bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Destroy(bar.GetComponent<Collider>());
-            bar.GetComponent<MeshFilter>().sharedMesh = wedgeMesh;
+            bar.GetComponent<MeshFilter>().sharedMesh = shaftMesh;
             bar.transform.SetParent(root, false);
             bar.transform.localRotation = Quaternion.Euler(0f, -a * Mathf.Rad2Deg, 0f);
             bar.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
@@ -159,7 +170,7 @@ public class ShadowBars : MonoBehaviour
             cap = c.transform;
             baseCapDiameter = radius * 2f * CapOverhang;
             capHalfThickness = Mathf.Max(thickness, 0.005f) * 0.5f;
-            capY = depth * ExtendAbove + capHalfThickness;
+            capY = topY + capHalfThickness;
         }
     }
 
@@ -227,6 +238,6 @@ public class ShadowBars : MonoBehaviour
     void OnDestroy()
     {
         if (root != null) Destroy(root.gameObject);
-        if (wedgeMesh != null) Destroy(wedgeMesh);
+        if (shaftMesh != null) Destroy(shaftMesh);
     }
 }
