@@ -65,6 +65,7 @@
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_AnimateMaterialUV.cs" />
     <Compile Include="Assets\scripts\PlayerShooting.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\MouseLook.cs" />
+    <Compile Include="Assets\Vefects\Wind VFX URP\Demo\Resources\Scripts\Demo_TurningAround.cs" />
     <Compile Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Scripts\CustomRenderTextureUpdater.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_FPSDisplay.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LiveRenderTextureReceiveToRendererMaterial.cs" />
@@ -88,28 +89,39 @@
     <None Include="Assets\Tree_Packs\URP_Tree_Pack\Doc\1_Readme.txt" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberDepthNormals.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Functions.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Simple_Particle_01_Lit.shader" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Fresnel.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUber.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Wind_Dust_Specs_01_Lit.shader" />
     <None Include="Assets\Tree_Packs\URP_Tree_Pack\Doc\2_Notices.txt" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Wind_Flows_01_Lit.shader" />
     <None Include="Assets\N2Studio\Third-Party Notices.txt" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Rotation.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberDepthOnly.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\Particles.hlsl" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hash.hlsl" />
     <None Include="Assets\Nokobot\Modern Guns - Handgun\README.txt" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Particles_Colored_01.shader" />
+    <None Include="Assets\Vefects\Wind VFX URP\Demo\Resources\Shaders\SH_Vefects_Grid_01.shader" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\Triplanar.shader" />
     <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\README.txt" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Wind_Flows_01_Unlit.shader" />
     <None Include="Assets\Mirza\AERO - Volumetric Fog and Mist\Shaders\Volumetric Fog.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\_ Extra\Shaders\SH_Vefects_Extra_Billboard_01.shader" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlitEditor.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Wind_Dust_Specs_01_Unlit.shader" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Hex.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlitForward.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Simple_Particle_01_Unlit.shader" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlit.shader" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberShadowCaster.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesInstancing.hlsl" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Adv_Particle_01_Lit.shader" />
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\ArmatureShader.shader" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Blocks.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlit.hlsl" />
     <None Include="Assets\Barking_Dog\3D Free Modular Kit\Readme_Please.txt" />
+    <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Particles_LUT_01.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

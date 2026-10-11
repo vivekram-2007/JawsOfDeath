@@ -10358,6 +10358,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9154985795129391474, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
   m_PrefabInstance: {fileID: 632113090}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &317341181
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1921079115439858272, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_Name
+      value: VFX_Wind_Debris_Tree_Leaves_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 70.468834
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 103.138535
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3538315220092702340, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 27baddc2ed1b5044ab9b4bdae21663c9, type: 3}
 --- !u!4 &324176658 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9154985795129391474, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
@@ -19559,3 +19616,4 @@ SceneRoots:
   - {fileID: 1059541092}
   - {fileID: 37389671}
   - {fileID: 1051721009}
+  - {fileID: 317341181}
