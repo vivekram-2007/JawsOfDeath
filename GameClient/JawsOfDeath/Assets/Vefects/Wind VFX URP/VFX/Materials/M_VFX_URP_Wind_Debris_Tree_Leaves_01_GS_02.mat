@@ -72,7 +72,7 @@ Material:
     - _DepthFade: 0
     - _DepthFadeLerp: 0
     - _Dst1: 10
-    - _EmissionIntensity: 1
+    - _EmissionIntensity: 0.5
     - _ErosionSmoothness: 0.001
     - _LUTAmplitude: 0.5
     - _LUTOffset: 0.5
@@ -86,7 +86,7 @@ Material:
     m_Colors:
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _LUTPanSpeed: {r: 0, g: 0, b: 0, a: 0}
-    - _Tint: {r: 1, g: 1, b: 1, a: 0}
+    - _Tint: {r: 0.87169814, g: 0.87169814, b: 0.87169814, a: 0}
     - _UVDPan: {r: -0.1, g: 0.013, b: 0, a: 0}
     - _UVDScale: {r: 0.333, g: 0.5, b: 0, a: 0}
     - _UVPan: {r: 0, g: 0, b: 0, a: 0}
