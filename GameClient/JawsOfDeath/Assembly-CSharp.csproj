@@ -121,6 +121,7 @@
     <None Include="Assets\Starter Assets\Sample\Environment\Shaders\Built-in_RP\ArmatureShader.shader" />
     <None Include="Assets\Mirza\_VFXToolkit\_Demo\Shaders\_HLSL\Blocks.hlsl" />
     <None Include="Assets\N2Studio\Shaders\Nova\Runtime\Core\Shaders\ParticlesUberUnlit.hlsl" />
+    <None Include="Assets\Tensori\lava\LavaFlow.shader" />
     <None Include="Assets\Barking_Dog\3D Free Modular Kit\Readme_Please.txt" />
     <None Include="Assets\Vefects\Wind VFX URP\VFX\Shaders\SH_Vefects_URP_Particles_LUT_01.shader" />
   </ItemGroup>
