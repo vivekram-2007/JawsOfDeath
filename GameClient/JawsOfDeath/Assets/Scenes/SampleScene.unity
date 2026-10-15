@@ -672,6 +672,21 @@ MonoBehaviour:
   rayStartHeight: 100
   footOffset: 0
   turnSpeed: 6
+--- !u!114 &187761935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187761930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eedac5cabcaa32e499bf3a82d044ce68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossHealth
+  bossName: ZOMBIE BOSS
+  maxHealth: 400
+  healFraction: 0.5
 --- !u!4 &197085545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8c92c37dd47d75946972f1f1525838c4, type: 3}
@@ -10776,6 +10791,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6681492060110082400, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 187761931}
+    - targetCorrespondingSourceObject: {fileID: 6681492060110082400, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 187761935}
   m_SourcePrefab: {fileID: 100100000, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
 --- !u!1001 &5025083421387101725
 PrefabInstance:
