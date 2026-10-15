@@ -108,11 +108,15 @@ public class PlayerShooting : MonoBehaviour
 
             ZombieHealth z = hit.collider.GetComponentInParent<ZombieHealth>();
             if (z != null) z.TakeDamage(finalDamage);
+
+            BossHealth b = hit.collider.GetComponentInParent<BossHealth>();
+            if (b != null) b.TakeDamage(finalDamage);
+
             break; // first solid thing stops the bullet
         }
     }
 
-    ZombieHealth ZombieUnderCrosshair()
+    bool EnemyUnderCrosshair()
     {
         Transform cam = playerCamera.transform;
         RaycastHit[] hits = Physics.RaycastAll(cam.position, cam.forward, range, ~0, QueryTriggerInteraction.Ignore);
@@ -121,9 +125,10 @@ public class PlayerShooting : MonoBehaviour
         foreach (RaycastHit hit in hits)
         {
             if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
-            return hit.collider.GetComponentInParent<ZombieHealth>();
+            return hit.collider.GetComponentInParent<ZombieHealth>() != null
+                || hit.collider.GetComponentInParent<BossHealth>() != null;
         }
-        return null;
+        return false;
     }
 
     void UpdateUI()
@@ -144,7 +149,7 @@ public class PlayerShooting : MonoBehaviour
         crosshairRect.sizeDelta = new Vector2(displaySize, displaySize);
 
         // smooth color
-        Color target = ZombieUnderCrosshair() != null ? enemyColor : normalColor;
+        Color target = EnemyUnderCrosshair() ? enemyColor : normalColor;
         crosshair.color = Color.Lerp(crosshair.color, target, 1f - Mathf.Exp(-colorSmoothSpeed * Time.deltaTime));
     }
 
