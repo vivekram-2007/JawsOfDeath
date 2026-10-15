@@ -12,6 +12,12 @@ public class PlayerHealth : MonoBehaviour
     public GameObject deathFirePrefab; // drag Fire001 prefab here
     public float deathFireScale = 1f;
 
+    [Header("Damage Screen Effect")]
+    public float fadeInSpeed = 6f;
+    public float fadeOutSpeed = 1.2f;
+    [Range(0f, 1f)] public float darkness = 0.45f;
+    [Range(0f, 1f)] public float bloodAmount = 0.9f;
+
     private GameObject deathFire;
     private Vector3 startPosition;
     private Quaternion startRotation;
@@ -20,6 +26,10 @@ public class PlayerHealth : MonoBehaviour
     private float barWidth = 255f;
     private Image overlay;
     private Text deathText;
+    private Image darkImg;
+    private Image bloodImg;
+    private float intensity;
+    private float hurtTimer;
 
     void Start()
     {
@@ -30,11 +40,30 @@ public class PlayerHealth : MonoBehaviour
         BuildUI();
     }
 
+    void Update()
+    {
+        if (darkImg == null || bloodImg == null) return;
+
+        hurtTimer -= Time.deltaTime;
+        float target = hurtTimer > 0f ? 1f : 0f;
+        float speed = target > intensity ? fadeInSpeed : fadeOutSpeed;
+        intensity = Mathf.MoveTowards(intensity, target, Time.deltaTime * speed);
+
+        float pulse = target > 0f ? 1f + Mathf.Sin(Time.time * 6f) * 0.1f : 1f;
+        darkImg.color = new Color(0f, 0f, 0f, intensity * darkness);
+        bloodImg.color = new Color(1f, 1f, 1f, Mathf.Clamp01(intensity * bloodAmount * pulse));
+    }
+
     public void TakeDamage(float amount)
     {
         if (currentHealth <= 0) return;
         currentHealth -= amount;
         UpdateBar();
+
+        // screen effect: stays on while damage keeps coming, big hits flash instantly
+        hurtTimer = 0.25f;
+        intensity = Mathf.Max(intensity, Mathf.Clamp01(amount / maxHealth * 4f));
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -72,6 +101,8 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth = maxHealth;
         UpdateBar();
+        hurtTimer = 0f;
+        intensity = 0f;
         yield return Fade(1f, 0f, 1f);
     }
 
@@ -88,6 +119,40 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    Image MakeFullscreen(string name, Transform parent)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
+        return img;
+    }
+
+    Sprite MakeVignette()
+    {
+        int size = 256;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x / (size - 1f) * 2f - 1f;
+                float dy = y / (size - 1f) * 2f - 1f;
+                float d = Mathf.Sqrt(dx * dx + dy * dy);
+                float a = Mathf.SmoothStep(0.3f, 1.3f, d);
+                a = 0.15f + 0.85f * a;
+                tex.SetPixel(x, y, new Color(0.55f, 0f, 0f, a));
+            }
+        }
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+    }
+
     void BuildUI()
     {
         GameObject canvasObj = new GameObject("HUD");
@@ -96,6 +161,13 @@ public class PlayerHealth : MonoBehaviour
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
+
+        // Damage effect (drawn first so the health bar stays on top)
+        darkImg = MakeFullscreen("DamageDark", canvasObj.transform);
+        darkImg.color = new Color(0f, 0f, 0f, 0f);
+        bloodImg = MakeFullscreen("DamageBlood", canvasObj.transform);
+        bloodImg.sprite = MakeVignette();
+        bloodImg.color = new Color(1f, 1f, 1f, 0f);
 
         // Bar background (bottom-left)
         GameObject bg = new GameObject("BarBG");

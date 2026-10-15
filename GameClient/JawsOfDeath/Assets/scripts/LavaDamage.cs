@@ -27,11 +27,11 @@ public class LavaDamage : MonoBehaviour
         Vector3 pos = player.position;
         Bounds b = rend.bounds;
 
-        bool insideX = pos.x > b.min.x && pos.x < b.max.x;
-        bool insideZ = pos.z > b.min.z && pos.z < b.max.z;
-        bool inLava = pos.y < b.max.y + surfaceOffset;
+        bool inLava = pos.x > b.min.x && pos.x < b.max.x
+                   && pos.z > b.min.z && pos.z < b.max.z
+                   && pos.y < b.max.y + surfaceOffset;
 
-        if (insideX && insideZ && inLava)
+        if (inLava)
             health.TakeDamage(damagePerSecond * Time.deltaTime);
     }
 }
