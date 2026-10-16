@@ -86,6 +86,7 @@
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_SetFPSOnStart.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MVFXTK_LightColourMesh.cs" />
     <Compile Include="Assets\Barking_Dog\Common Scripts\Turn_Move.cs" />
+    <Compile Include="Assets\scripts\BossHealthBar.cs" />
     <Compile Include="Assets\Mirza\_VFXToolkit\_Demo\Scripts\MFXTK_RenderScaleSliderUI.cs" />
   </ItemGroup>
   <ItemGroup>

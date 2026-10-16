@@ -582,7 +582,7 @@ Transform:
   m_GameObject: {fileID: 164495722}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 169.62401, y: 0, z: 149.15234}
+  m_LocalPosition: {x: 189.94261, y: 0, z: 174.854}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -668,10 +668,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossAI
   pointsParent: {fileID: 1980728772}
-  moveInterval: 4
   rayStartHeight: 100
   footOffset: 0
   turnSpeed: 6
+  runSpeed: 20
+  runAtPlayerChance: 0.5
+  teleportMin: 6
+  teleportMax: 12
+  minRunTime: 3
+  tooClose: 20
+  bestMin: 40
+  bestMax: 75
+  boulderPrefab: {fileID: 0}
+  throwHeight: 3.5
+  minBoulders: 6
+  maxBoulders: 8
+  throwInterval: 1.5
+  offscreenTime: 0.5
+  restDuration: 5
+  damageChanceWhenNotResting: 0.25
 --- !u!114 &187761935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -687,6 +702,28 @@ MonoBehaviour:
   bossName: ZOMBIE BOSS
   maxHealth: 400
   healFraction: 0.5
+--- !u!114 &187761936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187761930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5434e03df228ae458b46a68616b71d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossHealthBar
+  boss: {fileID: 0}
+  barWidth: 800
+  barHeight: 18
+  bottomOffset: 90
+  trailDelay: 0.6
+  trailSpeed: 0.5
+  fillColor: {r: 0.65, g: 0.08, b: 0.08, a: 1}
+  trailColor: {r: 0.9, g: 0.65, b: 0.15, a: 1}
+  backColor: {r: 0, g: 0, b: 0, a: 0.75}
+  borderColor: {r: 0.45, g: 0.38, b: 0.2, a: 1}
 --- !u!4 &197085545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8c92c37dd47d75946972f1f1525838c4, type: 3}
@@ -7934,7 +7971,7 @@ Transform:
   m_GameObject: {fileID: 1027898459}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 165.77118, y: 0, z: 246.39876}
+  m_LocalPosition: {x: 214.03815, y: 0, z: 222.61198}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8498,7 +8535,7 @@ Transform:
   m_GameObject: {fileID: 1366393318}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 207.25775, y: 0, z: 206.75159}
+  m_LocalPosition: {x: 191.74933, y: 0, z: 206.75159}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8642,7 +8679,7 @@ Transform:
   m_GameObject: {fileID: 1497024751}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 173.86124, y: 0, z: 192.84193}
+  m_LocalPosition: {x: 167.44029, y: 0, z: 220.12086}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8897,7 +8934,7 @@ Transform:
   m_GameObject: {fileID: 1585665687}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 207.25775, y: 0, z: 149.15234}
+  m_LocalPosition: {x: 168.32729, y: 0, z: 151.61035}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9932,7 +9969,7 @@ Transform:
   m_GameObject: {fileID: 1901636829}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 142.38673, y: 0, z: 180.55421}
+  m_LocalPosition: {x: 222.75766, y: 0, z: 171.48798}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10386,7 +10423,7 @@ Transform:
   m_GameObject: {fileID: 2092111158}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 218.45052, y: -5.24179, z: 136.85211}
+  m_LocalPosition: {x: 159.78069, y: -17.222507, z: 170.72418}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10794,6 +10831,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6681492060110082400, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 187761935}
+    - targetCorrespondingSourceObject: {fileID: 6681492060110082400, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 187761936}
   m_SourcePrefab: {fileID: 100100000, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
 --- !u!1001 &5025083421387101725
 PrefabInstance:

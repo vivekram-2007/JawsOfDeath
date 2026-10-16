@@ -4,11 +4,12 @@ public class BossHealth : MonoBehaviour
 {
     public string bossName = "ZOMBIE BOSS";
     public int maxHealth = 400;
-    [Range(0f, 1f)] public float healFraction = 0.5f;   // heals this share of damage taken since the last rest
+    [Range(0f, 1f)] public float healFraction = 0.5f;
 
     public float CurrentHealth { get; private set; }
     public bool IsDead { get; private set; }
 
+    private BossAI ai;
     private float damageSinceRest;
     private float healRemaining;
     private float healPerSecond;
@@ -16,6 +17,7 @@ public class BossHealth : MonoBehaviour
     void Start()
     {
         CurrentHealth = maxHealth;
+        ai = GetComponent<BossAI>();
     }
 
     void Update()
@@ -30,6 +32,7 @@ public class BossHealth : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (IsDead) return;
+        if (ai != null && !ai.RegisterShot()) return;   // not resting: he teleports, damage only 1 in 4
 
         CurrentHealth -= amount;
         damageSinceRest += amount;
@@ -38,11 +41,10 @@ public class BossHealth : MonoBehaviour
         {
             CurrentHealth = 0f;
             IsDead = true;
-            Destroy(gameObject);   // no death animation yet
+            Destroy(gameObject);
         }
     }
 
-    // BossAI calls this when a rest starts
     public void BeginRest(float duration)
     {
         healRemaining = damageSinceRest * healFraction;
