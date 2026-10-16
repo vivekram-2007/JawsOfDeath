@@ -31,8 +31,7 @@ public class BossAI : MonoBehaviour
     public float restDuration = 5f;
     [Range(0f, 1f)] public float damageChanceWhenNotResting = 0.25f;
 
-    public bool IsResting { get { return state == State.Rest; } }
-
+    public Vector3 PlayerVelocity { get { return playerVelocity; } }
     enum State { Run, Throw, Rest }
     State state = State.Run;
 
@@ -40,6 +39,8 @@ public class BossAI : MonoBehaviour
     Transform player;
     BossHealth health;
     int lastIndex = -1;
+    public int rememberPoints = 3;   // how many recent points he avoids
+    readonly System.Collections.Generic.List<int> recent = new System.Collections.Generic.List<int>();
     Vector3 destination;
     bool hasDestination;
     float teleportTimer, runTime, hiddenTimer, throwTimer, restTimer;
@@ -179,15 +180,36 @@ public class BossAI : MonoBehaviour
 
     void PickDestination()
     {
-        int idx;
-        if (Random.value < runAtPlayerChance) idx = PickPoint(true);
-        else idx = PickPoint(false);
+        bool toward = Random.value < runAtPlayerChance;
+        int idx = PickPoint(toward, true);
+
+        if (idx < 0)
+        {
+            // no fresh point to run to: teleport away instead of running back
+            TeleportToPoint(PickPoint(false, false));
+            int here = lastIndex;
+            recent.Clear();
+            recent.Add(here);
+            idx = PickPoint(toward, true);
+            if (idx < 0) idx = PickPoint(false, false);
+        }
+
+        Remember(idx);
         destination = points[idx].position;
         hasDestination = true;
     }
 
+    void Remember(int i)
+    {
+        recent.Remove(i);
+        recent.Add(i);
+        while (recent.Count > rememberPoints) recent.RemoveAt(0);
+    }
+
     // closestToPlayer = true: nearest point that is still allowed. false: weighted random.
-    int PickPoint(bool closestToPlayer)
+    int PickPoint(bool closestToPlayer) { return PickPoint(closestToPlayer, false); }
+
+    int PickPoint(bool closestToPlayer, bool avoidRecent)
     {
         int n = points.Length;
         float[] weight = new float[n];
@@ -201,6 +223,7 @@ public class BossAI : MonoBehaviour
             if (d > farthestD) { farthestD = d; farthest = i; }
 
             if (i == lastIndex && n > 1) continue;
+            if (avoidRecent && recent.Contains(i)) continue;
             if (d < tooClose) continue;
 
             if (d < closestD) { closestD = d; closest = i; }
@@ -208,7 +231,7 @@ public class BossAI : MonoBehaviour
             total += weight[i];
         }
 
-        if (total <= 0f) return farthest;                       // nothing allowed: farthest point
+        if (total <= 0f) return avoidRecent ? -1 : farthest;
         if (closestToPlayer && closest >= 0) return closest;
 
         float r = Random.value * total;
@@ -223,6 +246,7 @@ public class BossAI : MonoBehaviour
     void TeleportToPoint(int i)
     {
         lastIndex = i;
+        Remember(i);
         transform.position = SnapToGround(points[i].position);
     }
 
