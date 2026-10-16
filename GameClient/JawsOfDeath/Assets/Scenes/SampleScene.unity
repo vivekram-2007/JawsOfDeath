@@ -679,7 +679,7 @@ MonoBehaviour:
   tooClose: 20
   bestMin: 40
   bestMax: 75
-  boulderPrefab: {fileID: 0}
+  boulderPrefab: {fileID: 1933922905882425366, guid: 7547a77b521150a4799bcaa79f59c004, type: 3}
   throwHeight: 3.5
   minBoulders: 6
   maxBoulders: 8
@@ -687,6 +687,7 @@ MonoBehaviour:
   offscreenTime: 0.5
   restDuration: 5
   damageChanceWhenNotResting: 0.25
+  rememberPoints: 3
 --- !u!114 &187761935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6768,72 +6769,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9154985795129391474, guid: 0be5ae9de26dbbf43900949b04673ce2, type: 3}
   m_PrefabInstance: {fileID: 1500406774}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &538126051
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 538126054}
-  - component: {fileID: 538126053}
-  - component: {fileID: 538126052}
-  m_Layer: 0
-  m_Name: BossARENA
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &538126052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 538126051}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fdbb7ac31438cf4d9c7013f6472fa36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SafeZone
---- !u!65 &538126053
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 538126051}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &538126054
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 538126051}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 256.00827, y: 0.58438015, z: 223.24513}
-  m_LocalScale: {x: 250, y: 72, z: 212}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &559617695
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11059,7 +10994,6 @@ SceneRoots:
   - {fileID: 530790170}
   - {fileID: 497755403}
   - {fileID: 2106200347}
-  - {fileID: 538126054}
   - {fileID: 1667460040}
   - {fileID: 5025083421387101725}
   - {fileID: 1059541092}
