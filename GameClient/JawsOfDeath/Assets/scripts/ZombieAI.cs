@@ -11,6 +11,12 @@ public class ZombieAI : MonoBehaviour
     public float damage = 10f;
     [Range(0.1f, 1f)] public float hitPoint = 0.9f; // how far through the attack animation the hit lands
 
+    [Header("Wander (after giving up)")]
+    public float wanderRadius = 15f;                 // around the zombie's own spawn spot
+    [Range(0.1f, 1f)] public float wanderSpeedFraction = 0.5f; // share of chase speed
+    public float pauseMin = 2f;                      // idle time between wander points
+    public float pauseMax = 4f;
+
     private NavMeshAgent agent;
     private Transform player;
     private PlayerHealth playerHealth;
@@ -19,6 +25,11 @@ public class ZombieAI : MonoBehaviour
     private bool hasAppeared = false;
     private int lastHitLoop = -1;
 
+    private Vector3 spawnPos;
+    private float chaseSpeed;
+    private bool wanderHasTarget;
+    private float pauseTimer;
+
     public static bool playerInSafeZone = false;
 
     void Start()
@@ -26,6 +37,8 @@ public class ZombieAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false; // we rotate manually
         agent.stoppingDistance = 0f;
+        chaseSpeed = agent.speed;
+        spawnPos = transform.position;
         animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         playerHealth = player.GetComponent<PlayerHealth>();
@@ -61,15 +74,19 @@ public class ZombieAI : MonoBehaviour
 
         if (!hasAppeared) return; // still dormant, do nothing
 
-        // Give up if player got too far away
+        // Gave up: wander slowly around the spawn spot
         if (distance > giveUpRange)
         {
-            animator.SetBool("IsChasing", false);
             animator.SetBool("IsAttacking", false);
-            agent.isStopped = true;
             lastHitLoop = -1;
+            Wander();
             return;
         }
+
+        // Back to normal speed for chase and flee
+        agent.speed = chaseSpeed;
+        animator.speed = 1f;
+        wanderHasTarget = false;
 
         if (playerInSafeZone)
         {
@@ -104,6 +121,50 @@ public class ZombieAI : MonoBehaviour
                 animator.SetBool("IsAttacking", false);
                 lastHitLoop = -1;
             }
+        }
+    }
+
+    void Wander()
+    {
+        agent.speed = chaseSpeed * wanderSpeedFraction;
+        animator.speed = wanderSpeedFraction;   // slows the run animation to match
+
+        // pausing between points
+        if (pauseTimer > 0f)
+        {
+            pauseTimer -= Time.deltaTime;
+            agent.isStopped = true;
+            animator.SetBool("IsChasing", false);
+            animator.speed = 1f;
+            return;
+        }
+
+        // pick a new point near spawn
+        if (!wanderHasTarget)
+        {
+            Vector2 r = Random.insideUnitCircle * wanderRadius;
+            Vector3 candidate = spawnPos + new Vector3(r.x, 0f, r.y);
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(candidate, out hit, 5f, NavMesh.AllAreas))
+            {
+                agent.isStopped = false;
+                agent.SetDestination(hit.position);
+                wanderHasTarget = true;
+            }
+            return; // if it failed, try again next frame
+        }
+
+        animator.SetBool("IsChasing", true);
+        agent.isStopped = false;
+
+        Vector3 vel = agent.velocity;
+        if (vel.sqrMagnitude > 0.05f) FaceDirection(vel);
+
+        // reached the point: pause, then pick another
+        if (!agent.pathPending && agent.remainingDistance <= 0.6f)
+        {
+            wanderHasTarget = false;
+            pauseTimer = Random.Range(pauseMin, pauseMax);
         }
     }
 
