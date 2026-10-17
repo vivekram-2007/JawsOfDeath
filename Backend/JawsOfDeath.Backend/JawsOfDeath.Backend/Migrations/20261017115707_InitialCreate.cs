@@ -17,7 +17,8 @@ namespace JawsOfDeath.Backend.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Nickname = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
+                    Username = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false, collation: "NOCASE"),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,12 +32,14 @@ namespace JawsOfDeath.Backend.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     PlayerId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ZombiesKilled = table.Column<int>(type: "INTEGER", nullable: false),
-                    DeathCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    Kills = table.Column<int>(type: "INTEGER", nullable: false),
+                    Deaths = table.Column<int>(type: "INTEGER", nullable: false),
                     TimeToFirstOrb = table.Column<double>(type: "REAL", nullable: false),
-                    TimeToKillBoss = table.Column<double>(type: "REAL", nullable: false),
-                    TimeSurvived = table.Column<double>(type: "REAL", nullable: false),
-                    DatePlayed = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    TimeToBossKill = table.Column<double>(type: "REAL", nullable: true),
+                    SurvivalTime = table.Column<double>(type: "REAL", nullable: false),
+                    Score = table.Column<int>(type: "INTEGER", nullable: false),
+                    Won = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PlayedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,6 +51,12 @@ namespace JawsOfDeath.Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Players_Username",
+                table: "Players",
+                column: "Username",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScoreEntries_PlayerId",

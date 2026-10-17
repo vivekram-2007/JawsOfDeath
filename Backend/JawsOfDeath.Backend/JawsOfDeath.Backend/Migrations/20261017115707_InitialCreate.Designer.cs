@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JawsOfDeath.Backend.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    [Migration("20260811112816_InitialCreate")]
+    [Migration("20261017115707_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -26,12 +26,19 @@ namespace JawsOfDeath.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasMaxLength(50)
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Players");
                 });
@@ -42,25 +49,31 @@ namespace JawsOfDeath.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DatePlayed")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("DeathCount")
+                    b.Property<int>("Deaths")
                         .HasColumnType("INTEGER");
+
+                    b.Property<int>("Kills")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("PlayedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("PlayerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("TimeSurvived")
+                    b.Property<int>("Score")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("SurvivalTime")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("TimeToBossKill")
                         .HasColumnType("REAL");
 
                     b.Property<double>("TimeToFirstOrb")
                         .HasColumnType("REAL");
 
-                    b.Property<double>("TimeToKillBoss")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("ZombiesKilled")
+                    b.Property<bool>("Won")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
