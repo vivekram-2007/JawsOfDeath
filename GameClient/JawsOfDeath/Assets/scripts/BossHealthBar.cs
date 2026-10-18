@@ -43,7 +43,17 @@ public class BossHealthBar : MonoBehaviour
         trailRect.anchorMax = new Vector2(trailFraction, 1f);
         lastFraction = f;
     }
+    void OnEnable()
+    {
+        trailFraction = 1f;
+        lastFraction = 1f;
+        if (canvasObj != null) canvasObj.SetActive(true);
+    }
 
+    void OnDisable()
+    {
+        if (canvasObj != null) canvasObj.SetActive(false);
+    }
     void OnDestroy()
     {
         if (canvasObj != null) Destroy(canvasObj);

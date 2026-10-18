@@ -32,6 +32,7 @@ public class BossHealth : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (IsDead) return;
+        if (ai != null && !ai.enabled) return;          // asleep: ignore shots
         if (ai != null && !ai.RegisterShot()) return;   // not resting: he teleports, damage only 1 in 4
 
         CurrentHealth -= amount;
@@ -50,5 +51,13 @@ public class BossHealth : MonoBehaviour
         healRemaining = damageSinceRest * healFraction;
         healPerSecond = duration > 0f ? healRemaining / duration : healRemaining;
         damageSinceRest = 0f;
+    }
+
+    public void ResetHealth()
+    {
+        CurrentHealth = maxHealth;
+        damageSinceRest = 0f;
+        healRemaining = 0f;
+        healPerSecond = 0f;
     }
 }

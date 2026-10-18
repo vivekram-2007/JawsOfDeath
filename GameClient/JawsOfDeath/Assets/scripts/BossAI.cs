@@ -150,6 +150,13 @@ public class BossAI : MonoBehaviour
         restTimer -= dt;
         if (restTimer <= 0f) StartRun();
     }
+    public void ResetFight()
+    {
+        recent.Clear();
+        lastIndex = -1;
+        TeleportToPoint(PickPoint(false));
+        StartRun();
+    }
 
     // ---------- shots ----------
 

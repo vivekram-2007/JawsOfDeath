@@ -8,11 +8,20 @@ public class BossGate : MonoBehaviour
     public float promptRange = 6f;     // how close to the glass the prompt appears
     public float enterDepth = 10f;     // how many metres inside the glass you are placed
     public float keepMargin = 1.5f;    // how far from the glass edge you get stopped
+    public float passInterval = 30f;   // seconds between zombie passes
+
+    public static bool Active;
+    public static Vector3 Center;
+    public static float Radius;
+
     private BossAI ai;
+    private BossHealth bossHealth;
     private BossHealthBar bar;
     private Transform player;
+    private PlayerHealth playerHealth;
     private Text prompt;
     private bool fightStarted;
+    private float passTimer;
 
     public bool FightStarted { get { return fightStarted; } }
 
@@ -21,6 +30,7 @@ public class BossGate : MonoBehaviour
         if (boss != null)
         {
             ai = boss.GetComponent<BossAI>();
+            bossHealth = boss.GetComponent<BossHealth>();
             bar = boss.GetComponent<BossHealthBar>();
             if (ai != null) ai.enabled = false;     // boss sleeps
             if (bar != null) bar.enabled = false;   // no health bar yet
@@ -30,13 +40,28 @@ public class BossGate : MonoBehaviour
     void Start()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+        if (p != null)
+        {
+            player = p.transform;
+            playerHealth = p.GetComponent<PlayerHealth>();
+        }
         BuildUI();
+
+        Center = transform.position;
+        Radius = transform.lossyScale.x * 0.5f;
+        Active = false;
     }
 
     void Update()
     {
         if (player == null || prompt == null) return;
+
+        // you died inside the arena: reset the whole fight
+        if (fightStarted && playerHealth != null && playerHealth.currentHealth <= 0f)
+        {
+            ResetFight();
+            return;
+        }
 
         if (fightStarted || !OrbPickup.hasFire)
         {
@@ -55,9 +80,17 @@ public class BossGate : MonoBehaviour
         if (near && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
             EnterArena(r, d);
     }
+
     void LateUpdate()
     {
         if (!fightStarted || player == null) return;
+
+        passTimer += Time.deltaTime;
+        if (passTimer >= passInterval)
+        {
+            passTimer = 0f;
+            GrantPasses();
+        }
 
         float limit = transform.lossyScale.x * 0.5f - keepMargin;
         Vector3 d = player.position - transform.position;
@@ -72,6 +105,7 @@ public class BossGate : MonoBehaviour
         player.position = p;
         if (cc != null) cc.enabled = true;
     }
+
     void EnterArena(float r, Vector3 flatDir)
     {
         if (flatDir.sqrMagnitude < 0.01f) flatDir = Vector3.forward;
@@ -88,9 +122,53 @@ public class BossGate : MonoBehaviour
 
         // seal and start the fight instantly
         fightStarted = true;
+        Active = true;
+        passTimer = 0f;
         prompt.enabled = false;
         if (ai != null) ai.enabled = true;
         if (bar != null) bar.enabled = true;
+    }
+
+    void ResetFight()
+    {
+        fightStarted = false;
+        Active = false;
+        prompt.enabled = false;
+
+        if (ai != null)
+        {
+            ai.ResetFight();
+            ai.enabled = false;             // boss sleeps again
+        }
+        if (bossHealth != null) bossHealth.ResetHealth();
+        if (bar != null) bar.enabled = false;   // hides the bar
+
+        // remove boulders still flying
+        foreach (Boulder b in FindObjectsByType<Boulder>(FindObjectsSortMode.None))
+            Destroy(b.gameObject);
+    }
+
+    void GrantPasses()
+    {
+        ZombieAI bestIn = null, bestOut = null;
+        float inD = float.MaxValue, outD = float.MaxValue;
+
+        foreach (ZombieAI z in FindObjectsByType<ZombieAI>(FindObjectsSortMode.None))
+        {
+            if (z.hasPass) continue;
+            Vector3 d = z.transform.position - transform.position;
+            d.y = 0f;
+            float edge = Mathf.Abs(d.magnitude - Radius);
+
+            if (d.magnitude > Radius)
+            {
+                if (z.IsHunting && edge < outD) { outD = edge; bestIn = z; }   // outside, wants to come in
+            }
+            else if (edge < inD) { inD = edge; bestOut = z; }                  // inside, allowed out
+        }
+
+        if (bestIn != null) bestIn.hasPass = true;
+        if (bestOut != null) bestOut.hasPass = true;
     }
 
     Vector3 SnapToGround(Vector3 pos, float r)

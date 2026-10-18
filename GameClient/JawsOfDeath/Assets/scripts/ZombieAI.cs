@@ -17,6 +17,10 @@ public class ZombieAI : MonoBehaviour
     public float pauseMin = 2f;                      // idle time between wander points
     public float pauseMax = 4f;
 
+    [Header("Boss glass")]
+    public bool hasPass;                             // set by BossGate: may cross the glass once
+    public float glassAttackDistance = 3f;           // how close to the glass counts as "at the glass"
+
     private NavMeshAgent agent;
     private Transform player;
     private PlayerHealth playerHealth;
@@ -30,7 +34,21 @@ public class ZombieAI : MonoBehaviour
     private bool wanderHasTarget;
     private float pauseTimer;
 
+    private bool sideInit;
+    private bool sideInside;
+    private Vector3 lastSafePos;
+    private bool blockedAtGlass;
+
     public static bool playerInSafeZone = false;
+
+    public bool IsHunting
+    {
+        get
+        {
+            if (!hasAppeared || player == null) return false;
+            return Vector3.Distance(transform.position, player.position) <= giveUpRange && !playerInSafeZone;
+        }
+    }
 
     void Start()
     {
@@ -121,7 +139,61 @@ public class ZombieAI : MonoBehaviour
                 animator.SetBool("IsAttacking", false);
                 lastHitLoop = -1;
             }
+
+            // stuck at the boss glass: attack it, no damage to anyone
+            if (blockedAtGlass && flatDistance > attackRange)
+            {
+                animator.SetBool("IsChasing", true);
+                animator.SetBool("IsAttacking", true);
+                agent.isStopped = true;
+            }
         }
+    }
+
+    void LateUpdate()
+    {
+        if (agent == null || !agent.isOnNavMesh) return;
+
+        if (!BossGate.Active)
+        {
+            sideInit = false;
+            blockedAtGlass = false;
+            hasPass = false;
+            return;
+        }
+
+        Vector3 d = transform.position - BossGate.Center;
+        d.y = 0f;
+        float dist = d.magnitude;
+        bool inside = dist < BossGate.Radius;
+        float edge = Mathf.Abs(dist - BossGate.Radius);
+
+        if (!sideInit)
+        {
+            sideInit = true;
+            sideInside = inside;
+            lastSafePos = transform.position;
+            blockedAtGlass = false;
+            return;
+        }
+
+        if (inside == sideInside)
+        {
+            if (edge > 1f) lastSafePos = transform.position;
+        }
+        else if (hasPass)
+        {
+            sideInside = inside;        // crossed with a pass
+            hasPass = false;
+            lastSafePos = transform.position;
+        }
+        else
+        {
+            agent.Warp(lastSafePos);    // not allowed: put it back
+        }
+
+        // outside zombies next to the glass attack it
+        blockedAtGlass = !sideInside && !hasPass && edge < glassAttackDistance;
     }
 
     void Wander()
