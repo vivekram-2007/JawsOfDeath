@@ -277,6 +277,7 @@ public class BossAI : MonoBehaviour
         foreach (RaycastHit h in hits)
         {
             if (h.transform == transform || h.transform.IsChildOf(transform)) continue;
+            if (h.collider.GetComponentInParent<BossGate>() != null) continue;   // ignore the glass sphere
             if (player != null && (h.transform == player || h.transform.IsChildOf(player))) continue;
             return new Vector3(pos.x, h.point.y + footOffset, pos.z);
         }

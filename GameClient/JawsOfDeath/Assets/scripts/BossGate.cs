@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -7,21 +6,18 @@ public class BossGate : MonoBehaviour
 {
     public GameObject boss;            // drag zombie boss here
     public float promptRange = 6f;     // how close to the glass the prompt appears
-    public float sealDepth = 8f;       // how far inside you must walk before the glass seals
-
-    private MeshCollider glass;
+    public float enterDepth = 10f;     // how many metres inside the glass you are placed
+    public float keepMargin = 1.5f;    // how far from the glass edge you get stopped
     private BossAI ai;
     private BossHealthBar bar;
     private Transform player;
     private Text prompt;
-    private bool opening;
     private bool fightStarted;
 
     public bool FightStarted { get { return fightStarted; } }
 
     void Awake()
     {
-        glass = GetComponent<MeshCollider>();
         if (boss != null)
         {
             ai = boss.GetComponent<BossAI>();
@@ -42,7 +38,7 @@ public class BossGate : MonoBehaviour
     {
         if (player == null || prompt == null) return;
 
-        if (fightStarted || opening || !OrbPickup.hasFire)
+        if (fightStarted || !OrbPickup.hasFire)
         {
             prompt.enabled = false;
             return;
@@ -57,34 +53,60 @@ public class BossGate : MonoBehaviour
         prompt.enabled = near;
 
         if (near && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-            StartCoroutine(Enter(r));
+            EnterArena(r, d);
     }
-
-    IEnumerator Enter(float r)
+    void LateUpdate()
     {
-        opening = true;
-        glass.enabled = false;      // glass opens
+        if (!fightStarted || player == null) return;
 
-        float timeout = 15f;
-        while (timeout > 0f)
-        {
-            Vector3 d = player.position - transform.position;
-            d.y = 0f;
-            if (d.magnitude < r - sealDepth) break;   // you are inside
-            timeout -= Time.deltaTime;
-            yield return null;
-        }
+        float limit = transform.lossyScale.x * 0.5f - keepMargin;
+        Vector3 d = player.position - transform.position;
+        d.y = 0f;
+        if (d.magnitude <= limit) return;
 
-        glass.enabled = true;       // glass seals behind you
-        if (timeout <= 0f)          // never walked in: reset the gate
-        {
-            opening = false;
-            yield break;
-        }
+        Vector3 p = transform.position + d.normalized * limit;
+        p.y = player.position.y;
 
+        CharacterController cc = player.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+        player.position = p;
+        if (cc != null) cc.enabled = true;
+    }
+    void EnterArena(float r, Vector3 flatDir)
+    {
+        if (flatDir.sqrMagnitude < 0.01f) flatDir = Vector3.forward;
+        flatDir = flatDir.normalized;
+
+        // place the player inside the glass, on the ground
+        Vector3 target = transform.position + flatDir * (r - enterDepth);
+        target = SnapToGround(target, r);
+
+        CharacterController cc = player.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+        player.position = target;
+        if (cc != null) cc.enabled = true;
+
+        // seal and start the fight instantly
         fightStarted = true;
+        prompt.enabled = false;
         if (ai != null) ai.enabled = true;
         if (bar != null) bar.enabled = true;
+    }
+
+    Vector3 SnapToGround(Vector3 pos, float r)
+    {
+        Vector3 start = new Vector3(pos.x, transform.position.y + r + 20f, pos.z);
+        RaycastHit[] hits = Physics.RaycastAll(start, Vector3.down, r * 3f, ~0, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit h in hits)
+        {
+            if (h.collider.GetComponentInParent<BossGate>() != null) continue;   // skip the glass
+            if (h.transform == player || h.transform.IsChildOf(player)) continue;
+            if (boss != null && h.transform.IsChildOf(boss.transform)) continue;
+            return new Vector3(pos.x, h.point.y + 0.1f, pos.z);
+        }
+        return pos;
     }
 
     void BuildUI()
