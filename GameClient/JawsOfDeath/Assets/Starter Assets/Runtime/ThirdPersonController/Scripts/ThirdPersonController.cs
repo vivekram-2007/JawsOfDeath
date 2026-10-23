@@ -17,6 +17,9 @@ namespace StarterAssets
         // true while right mouse is held (read by PlayerShooting for the crosshair)
         public static bool IsAiming;
 
+        // true while the dodge roll is playing
+        public static bool IsRolling;
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -99,6 +102,16 @@ namespace StarterAssets
         [Tooltip("How fast the zoom blends in and out (1 = one second)")]
         public float AimZoomSpeed = 6.0f;
 
+        [Header("Dodge Roll (Alt + W/A/S/D)")]
+        [Tooltip("How far the roll carries the player, in meters")]
+        public float RollDistance = 3.5f;
+
+        [Tooltip("How long the roll lasts, in seconds (match this to the length of the roll animation)")]
+        public float RollDuration = 0.8f;
+
+        [Tooltip("Seconds before another roll can start")]
+        public float RollCooldown = 0.5f;
+
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
@@ -117,6 +130,14 @@ namespace StarterAssets
         private Vector2 _lastInput;
         private float _cameraFollowYaw;
 
+        // dodge roll
+        private bool _isRolling;
+        private float _rollTimer;
+        private float _rollCooldownDelta;
+        private Vector3 _rollDir;
+        private float _rollYaw;
+        private bool _hasRollParam;
+
         // player
         private float _speed;
         private float _animationBlend;
@@ -134,6 +155,7 @@ namespace StarterAssets
         private int _animIDJump;
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
+        private int _animIDRoll;
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -185,6 +207,20 @@ namespace StarterAssets
 
             AssignAnimationIDs();
 
+            // only fire the Roll trigger if the Animator actually has it (so the roll still moves before the animation is set up)
+            _hasRollParam = false;
+            if (_hasAnimator && _animator.runtimeAnimatorController != null)
+            {
+                foreach (AnimatorControllerParameter p in _animator.parameters)
+                {
+                    if (p.nameHash == _animIDRoll && p.type == AnimatorControllerParameterType.Trigger)
+                    {
+                        _hasRollParam = true;
+                        break;
+                    }
+                }
+            }
+
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
@@ -200,6 +236,7 @@ namespace StarterAssets
             IsAiming = Mouse.current != null && Mouse.current.rightButton.isPressed;
 #endif
 
+            HandleRollInput();
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -217,6 +254,7 @@ namespace StarterAssets
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDRoll = Animator.StringToHash("Roll");
         }
 
         private void GroundedCheck()
@@ -283,8 +321,95 @@ namespace StarterAssets
             targetTf.position = basePos + zoomOffset * t;
         }
 
+        private void HandleRollInput()
+        {
+#if ENABLE_INPUT_SYSTEM
+            if (_rollCooldownDelta > 0f) _rollCooldownDelta -= Time.deltaTime;
+
+            if (_isRolling || !Grounded || _rollCooldownDelta > 0f) return;
+
+            Keyboard kb = Keyboard.current;
+            if (kb == null) return;
+
+            // Alt must be held
+            bool alt = kb.leftAltKey.isPressed || kb.rightAltKey.isPressed;
+            if (!alt) return;
+
+            // roll starts the moment Alt or a direction key is pressed
+            bool trigger = kb.leftAltKey.wasPressedThisFrame || kb.rightAltKey.wasPressedThisFrame
+                        || kb.wKey.wasPressedThisFrame || kb.aKey.wasPressedThisFrame
+                        || kb.sKey.wasPressedThisFrame || kb.dKey.wasPressedThisFrame;
+            if (!trigger) return;
+
+            Vector2 dir = Vector2.zero;
+            if (kb.wKey.isPressed) dir.y += 1f;
+            if (kb.sKey.isPressed) dir.y -= 1f;
+            if (kb.dKey.isPressed) dir.x += 1f;
+            if (kb.aKey.isPressed) dir.x -= 1f;
+            if (dir == Vector2.zero) return;
+
+            StartRoll(dir);
+#endif
+        }
+
+        private void StartRoll(Vector2 input)
+        {
+            // direction is relative to the camera, same as normal movement
+            float cameraYaw = _mainCamera.transform.eulerAngles.y - _lookBehindOffset;
+            Quaternion camRot = Quaternion.Euler(0.0f, cameraYaw, 0.0f);
+
+            _rollDir = (camRot * new Vector3(input.x, 0.0f, input.y)).normalized;
+            _rollYaw = Mathf.Atan2(_rollDir.x, _rollDir.z) * Mathf.Rad2Deg;
+
+            // face the roll direction right away
+            transform.rotation = Quaternion.Euler(0.0f, _rollYaw, 0.0f);
+
+            _isRolling = true;
+            IsRolling = true;
+            _rollTimer = 0f;
+
+            // cancel the camera auto-swing timer
+            _runTimer = 0f;
+            _dirLocked = false;
+
+            if (_hasAnimator && _hasRollParam)
+            {
+                _animator.SetTrigger(_animIDRoll);
+            }
+        }
+
+        private void EndRoll()
+        {
+            _isRolling = false;
+            IsRolling = false;
+            _rollCooldownDelta = RollCooldown;
+        }
+
+        private void RollUpdate()
+        {
+            _rollTimer += Time.deltaTime;
+
+            float rollSpeed = RollDistance / Mathf.Max(0.05f, RollDuration);
+            transform.rotation = Quaternion.Euler(0.0f, _rollYaw, 0.0f);
+
+            _controller.Move(_rollDir * (rollSpeed * Time.deltaTime) +
+                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+
+            if (_rollTimer >= RollDuration)
+            {
+                EndRoll();
+            }
+        }
+
         private void Move()
         {
+            // dodge roll takes over movement completely while it plays
+            if (_isRolling)
+            {
+                RollUpdate();
+                return;
+            }
+
             // set target speed based on move speed, sprint speed and if sprint is pressed
             float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
@@ -424,8 +549,8 @@ namespace StarterAssets
                     _verticalVelocity = -2f;
                 }
 
-                // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                // Jump (not while rolling)
+                if (_input.jump && _jumpTimeoutDelta <= 0.0f && !_isRolling)
                 {
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
