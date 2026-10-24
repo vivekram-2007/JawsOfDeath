@@ -20,12 +20,26 @@ namespace StarterAssets
         // true while the dodge roll is playing
         public static bool IsRolling;
 
+        // set by PlayerStamina (it lives in another assembly, so values pass through statics)
+        public static bool SprintAllowed = true;
+        public static bool RollAllowed = true;
+
+        // true while the player is actually sprinting (read by PlayerStamina)
+        public static bool IsSprinting;
+
+        // fired when a roll starts (PlayerStamina spends stamina on this)
+        public static event System.Action Rolled;
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
 
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 5.335f;
+
+        [Tooltip("Sprint speed is multiplied by this (0.6 = 40% slower)")]
+        [Range(0.1f, 1.0f)]
+        public float SprintSpeedMultiplier = 0.6f;
 
         [Tooltip("How fast the character turns to face the running direction")]
         [Range(0.0f, 0.3f)]
@@ -207,6 +221,12 @@ namespace StarterAssets
 
             AssignAnimationIDs();
 
+            // reset the static hooks (they survive between Play sessions when domain reload is off)
+            SprintAllowed = true;
+            RollAllowed = true;
+            IsSprinting = false;
+            IsRolling = false;
+
             // only fire the Roll trigger if the Animator actually has it (so the roll still moves before the animation is set up)
             _hasRollParam = false;
             if (_hasAnimator && _animator.runtimeAnimatorController != null)
@@ -327,6 +347,7 @@ namespace StarterAssets
             if (_rollCooldownDelta > 0f) _rollCooldownDelta -= Time.deltaTime;
 
             if (_isRolling || !Grounded || _rollCooldownDelta > 0f) return;
+            if (!RollAllowed) return;
 
             Keyboard kb = Keyboard.current;
             if (kb == null) return;
@@ -367,6 +388,7 @@ namespace StarterAssets
             _isRolling = true;
             IsRolling = true;
             _rollTimer = 0f;
+            Rolled?.Invoke();
 
             // cancel the camera auto-swing timer
             _runTimer = 0f;
@@ -406,12 +428,17 @@ namespace StarterAssets
             // dodge roll takes over movement completely while it plays
             if (_isRolling)
             {
+                IsSprinting = false;
                 RollUpdate();
                 return;
             }
 
-            // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            // sprint only counts while moving and while stamina allows it
+            bool sprinting = _input.sprint && _input.move != Vector2.zero && SprintAllowed;
+            IsSprinting = sprinting;
+
+            // set target speed based on move speed, sprint speed (cut by the multiplier) and if sprint is pressed
+            float targetSpeed = sprinting ? SprintSpeed * SprintSpeedMultiplier : MoveSpeed;
 
             // if there is no input, set the target speed to 0
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
